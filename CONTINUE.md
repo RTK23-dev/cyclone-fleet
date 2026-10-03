@@ -16,6 +16,4 @@ Fixed: a full change queue no longer drops the newest update; Glass resyncs ever
 
 ## Next
 
-Step 1 gate: gateway and CI suites exited 0. Step 2 so far: a bad JSON row no longer breaks the list, and a corrupt `fleet.db` is quarantined. Caps were not raised. Dispatch is still inside the request. The orchestrator was not split. `kill -9` was not run. No phone.
-
-Run `docs/FLEET_ACCEPTANCE.md` on two phones. Do not bump `release/version.toml`.
+A `kill -9` of a child that had committed a mission kept that mission and did not duplicate the task binding. That is a store restart, not a running gateway with a phone. Device acceptance stays UNVERIFIED. Caps were not raised. Dispatch is still inside the request. The orchestrator was not split. Do not bump `release/version.toml`.

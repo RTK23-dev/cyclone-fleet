@@ -177,6 +177,7 @@ class FleetOrchestrator:
         try:
             raw = self._groups()
         except Exception:  # noqa: BLE001 - a missing group list asks, it does not guess
+            log.info("fleet.groups_unreadable")
             return groups
         for item in raw or []:
             if not isinstance(item, dict):
@@ -358,6 +359,7 @@ class FleetOrchestrator:
             try:
                 task = self._cc.get_task(tid)
             except Exception:  # noqa: BLE001 - an unreadable sibling is not done
+                log.info("fleet.sibling_unreadable mission=%s task=%s", mission_id, tid)
                 return False
             if task is None or str(task.get("status") or "") not in terminal:
                 return False

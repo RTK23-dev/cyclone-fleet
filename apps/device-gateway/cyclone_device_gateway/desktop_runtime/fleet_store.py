@@ -47,6 +47,8 @@ CREATE TABLE IF NOT EXISTS fleet_task (
     task_id    TEXT PRIMARY KEY,
     mission_id TEXT NOT NULL
 );
+CREATE INDEX IF NOT EXISTS idx_fleet_task_mission
+    ON fleet_task (mission_id);
 """
 
 
