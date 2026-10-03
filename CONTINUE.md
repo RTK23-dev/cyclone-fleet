@@ -12,6 +12,8 @@ Alpha.102 numbers stay. The fleet sits above the Command Center. Routes stay `/v
 
 SQLite missions, async dispatch, live events, queued phones, health report, preflight, pause, do-not-target, spend cap, retry, canary rollout, queued-behind, and owner approval display. Review fixes for rollout rows, empty missions, task binding, and CSV export are included.
 
-## Not verified
+## Checks on this tree
 
-Phone acceptance stays UNVERIFIED. Do not bump `release/version.toml`.
+- `python -m pytest apps/device-gateway/tests` exited 0. No failed tests.
+- `python -m pytest scripts/ci/tests` exited 0.
+- Phone acceptance stays UNVERIFIED. Do not bump `release/version.toml`.
