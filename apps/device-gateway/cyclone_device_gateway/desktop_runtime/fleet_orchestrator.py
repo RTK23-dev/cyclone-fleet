@@ -460,14 +460,16 @@ class FleetOrchestrator:
         untouched. Use stop_all() as the emergency 'cancel everything' path.
         """
         stopped = 0
+        open_ids = {task["id"] for task in self._cc.list_tasks(status="open", limit=5000)}
         fleet_task_ids: set[str] = set()
         cursor: str | None = None
         while True:
             items, cursor = self._store.page(200, cursor=cursor)
             for mission in items:
                 for row in mission.get("assignments") or []:
-                    if row.get("taskId"):
-                        fleet_task_ids.add(row["taskId"])
+                    task_id = row.get("taskId")
+                    if task_id and task_id in open_ids:
+                        fleet_task_ids.add(task_id)
             if not cursor:
                 break
         for task_id in fleet_task_ids:
@@ -678,6 +680,7 @@ class FleetOrchestrator:
                 subscribers = int(broker.subscriber_count())
             except Exception:
                 subscribers = 0
+        thread = getattr(self._cc, "_thread", None)
         return {
             "paused": self._paused,
             "excluded": sorted(self._excluded),
@@ -687,6 +690,11 @@ class FleetOrchestrator:
             "spendCap": self._spend_cap,
             "eventSubscribers": subscribers,
             "store": "fleet.db",
+            "loopAlive": bool(thread and thread.is_alive()),
+            "ticks": int(getattr(self._cc, "_ticks", 0) or 0),
+            "changeQueue": self._changes.qsize(),
+            "approvalsWaiting": self.approvals()["count"],
+            "answersApprovals": False,
         }
 
     def export_mission(self, mission_id: str) -> dict[str, Any]:

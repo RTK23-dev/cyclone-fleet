@@ -1,7 +1,7 @@
-# Fleet on alpha.99
+# Fleet
 
-This tree is Cyclone 5.0.0-alpha.99.dev1 with the fleet command layer ported onto it.
+The owner types one sentence. Each named phone gets its own Command Center task. The PC does not call a model.
 
-The alpha.99 phone, ports, and Glass code is the base. Added on top: SQLite missions, async dispatch, live mission events, queued-not-running, health facts, preflight, pause, do-not-target, spend cap, same-mission retry, canary hold, queued-behind, and owner approval display. The fleet does not answer an approval.
+Approvals are answered by the owner on the Command Center Approvals tab, or on the phone. The fleet lists the ask and opens that tab. It has no approve or send route. That is the same boundary a bank uses for a payment: the system can show the ask, it cannot approve it.
 
-Device acceptance is still UNVERIFIED.
+Caps: `FLEET_MAX_PHONES` 32, `FLEET_MAX_PER_COMMAND` 16. Phone acceptance is UNVERIFIED.
