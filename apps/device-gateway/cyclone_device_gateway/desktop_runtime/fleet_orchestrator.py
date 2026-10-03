@@ -850,7 +850,7 @@ class FleetOrchestrator:
                 "accessibilityConnected": health.get("accessibilityConnected"),
                 "addressable": bool(device.get("paired")),
                 "tasks": [{
-                    "taskId": t["id"], "title": t.get("title") or "", "status": _PHONE_STATE.get(t.get("status"), "RUNNING"),
+                    "taskId": t["id"], "title": t.get("title") or "", "status": _PHONE_STATE.get(t.get("status"), "UNKNOWN"),
                     "needsYou": t["id"] in approvals,
                     "approval": {
                         "id": approvals[t["id"]]["id"],
@@ -986,7 +986,7 @@ class FleetOrchestrator:
                 if task is None:
                     entry["cause"] = "The task no longer exists."
                 else:
-                    entry["state"] = _PHONE_STATE.get(task["status"], "RUNNING")
+                    entry["state"] = _PHONE_STATE.get(task["status"], "UNKNOWN")
                     entry["cause"] = task.get("cause") or ""
                     run = task.get("run") or {}
                     entry["summary"] = run.get("summary") or ""

@@ -98,6 +98,8 @@ def create_fleet_router(runtime: Any, token: str) -> APIRouter:
         b = body_of(body)
         command = str(b.get("command") or "")
         skip = b.get("skipDeviceIds")
+        if len(command) > 4000:
+            raise FleetError("INVALID_REQUEST", "A command is at most 4000 characters.")
         return call(lambda: fleet().run_command(
             command, confirm=bool(b.get("confirm")), device_ids=scope_of(b), client_request_id=b.get("requestId"),
             skip_device_ids=skip if isinstance(skip, list) else None,

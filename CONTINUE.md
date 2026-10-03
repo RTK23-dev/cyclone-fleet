@@ -16,4 +16,4 @@ Fixed: a full change queue no longer drops the newest update; Glass resyncs ever
 
 ## Next
 
-A `kill -9` of a child that had committed a mission kept that mission and did not duplicate the task binding. That is a store restart, not a running gateway with a phone. Device acceptance stays UNVERIFIED. Caps were not raised. Dispatch is still inside the request. The orchestrator was not split. Do not bump `release/version.toml`.
+An unknown task status is shown as UNKNOWN, not RUNNING. A command over 4000 characters is refused. Device acceptance stays UNVERIFIED. This is not a production release until `docs/FLEET_ACCEPTANCE.md` runs on two phones. Do not bump `release/version.toml`.
