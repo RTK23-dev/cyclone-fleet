@@ -1,0 +1,177 @@
+name: Publish Cyclone One release
+
+on:
+  push:
+    branches:
+      - 'release/cyclone-one-v*'
+
+permissions:
+  actions: read
+  contents: write
+
+concurrency:
+  group: pc-companion-publish-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish exact CI candidate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          ref: ${{ github.sha }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13.7'
+
+      - name: Validate release identity
+        id: identity
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json, os, tomllib
+          from pathlib import Path
+
+          release = tomllib.loads(Path('release/version.toml').read_text(encoding='utf-8'))
+          package = json.loads(Path('apps/pc-companion/package.json').read_text(encoding='utf-8'))
+          pc = release['components']['pc_companion']
+          mobile = release['components']['mobile']
+          ref = os.environ['GITHUB_REF_NAME']
+          if release['release']['publication_authorized'] is not True:
+              raise SystemExit('Publication is not authorized in release/version.toml')
+          if release['release']['candidate_generation'] != 'cyclone-4.4.2-one-1.5.5-camera':
+              raise SystemExit('Refusing to publish a non-combined camera candidate')
+          if pc != '1.5.5' or package['version'] != pc:
+              raise SystemExit(f'Unexpected Cyclone One version: manifest={pc} package={package["version"]}')
+          if mobile != '4.4.2' or release['android_version_code'] != 102:
+              raise SystemExit(f'Unexpected paired Mobile identity: {mobile}/{release["android_version_code"]}')
+          expected_ref = f'release/cyclone-one-v{pc}'
+          if ref != expected_ref:
+              raise SystemExit(f'Release branch mismatch: expected {expected_ref}, got {ref}')
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as out:
+              out.write(f'pc_version={pc}\n')
+              out.write(f'mobile_version={mobile}\n')
+          PY
+
+      - name: Wait for successful exact-source PC CI
+        id: ci
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          run_id=''
+          for attempt in $(seq 1 60); do
+            response="$(gh api --method GET "repos/${GITHUB_REPOSITORY}/actions/workflows/pc-companion-ci.yml/runs" \
+              -f branch="${GITHUB_REF_NAME}" \
+              -f head_sha="${GITHUB_SHA}" \
+              -f event=push \
+              -f per_page=20)"
+            latest="$(printf '%s' "$response" | jq -c '.workflow_runs | sort_by(.run_number) | reverse | .[0] // empty')"
+            if [[ -n "$latest" ]]; then
+              status="$(printf '%s' "$latest" | jq -r '.status')"
+              conclusion="$(printf '%s' "$latest" | jq -r '.conclusion // ""')"
+              candidate_id="$(printf '%s' "$latest" | jq -r '.id')"
+              echo "PC CI $candidate_id: status=$status conclusion=$conclusion"
+              if [[ "$status" == 'completed' && "$conclusion" == 'success' ]]; then
+                run_id="$candidate_id"
+                break
+              fi
+              if [[ "$status" == 'completed' && "$conclusion" != 'success' ]]; then
+                echo "Exact-source PC CI completed unsuccessfully; refusing publication." >&2
+                exit 1
+              fi
+            else
+              echo "Exact-source PC CI has not registered yet."
+            fi
+            sleep 20
+          done
+          if [[ -z "$run_id" ]]; then
+            echo 'Timed out waiting for successful exact-source PC CI.' >&2
+            exit 1
+          fi
+          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+
+      - name: Download exact CI artifact
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p dist/pc-companion
+          gh run download '${{ steps.ci.outputs.run_id }}' \
+            --name "cyclone-pc-companion-${GITHUB_SHA}" \
+            --dir dist/pc-companion
+
+      - name: Verify provenance and installed acceptance
+        shell: bash
+        env:
+          PC_VERSION: ${{ steps.identity.outputs.pc_version }}
+        run: |
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+
+          root = Path('dist/pc-companion')
+          version = os.environ['PC_VERSION']
+          sha = os.environ['GITHUB_SHA'].lower()
+          installer = root / f'Cyclone-PC-Companion-{version}-Setup.exe'
+          provenance_file = root / 'release-provenance.json'
+          acceptance_file = root / 'installer-acceptance.json'
+          source_file = root / 'source-sha.txt'
+          notices = root / 'THIRD_PARTY_NOTICES'
+          for path in (installer, provenance_file, acceptance_file, source_file, notices):
+              if not path.is_file():
+                  raise SystemExit(f'Missing exact-CI release payload: {path}')
+
+          provenance = json.loads(provenance_file.read_text(encoding='utf-8-sig'))
+          acceptance = json.loads(acceptance_file.read_text(encoding='utf-8-sig'))
+          if provenance.get('product') != 'Cyclone One' or provenance.get('version') != version:
+              raise SystemExit('Cyclone One provenance identity mismatch')
+          if provenance.get('source_sha') != sha or source_file.read_text(encoding='utf-8-sig').strip().lower() != sha:
+              raise SystemExit('Release payload source SHA does not match branch head')
+
+          required_true = (
+              'installed', 'bundled_adb', 'gateway_ready', 'gateway_authenticated',
+              'transport_onboarding_api', 'camera_streaming_api', 'first_run_guide',
+              'vmos_image_tip', 'mobile_tip', 'trust_pairing_tip', 'chatgpt_attach_sync',
+              'cloud_control_health',
+          )
+          missing = [key for key in required_true if acceptance.get(key) is not True]
+          if missing:
+              raise SystemExit(f'Installed acceptance is incomplete: {missing}')
+          if acceptance.get('bundled_adb_version') != '37.0.1':
+              raise SystemExit('Bundled ADB acceptance is not Platform-Tools 37.0.1')
+
+          digest = hashlib.sha256(installer.read_bytes()).hexdigest()
+          artifacts = {item.get('name'): item.get('sha256') for item in provenance.get('artifacts', [])}
+          if artifacts.get(installer.name) != digest:
+              raise SystemExit('Installer SHA-256 does not match CI provenance')
+          print(f'Exact CI installer accepted: {installer.name} sha256={digest}')
+          PY
+
+      - name: Refuse release overwrite
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PC_VERSION: ${{ steps.identity.outputs.pc_version }}
+        run: |
+          if gh release view "one-${PC_VERSION}" >/dev/null 2>&1; then
+            echo "Release one-${PC_VERSION} already exists; refusing overwrite." >&2
+            exit 1
+          fi
+
+      - name: Publish Cyclone One release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PC_VERSION: ${{ steps.identity.outputs.pc_version }}
+        run: |
+          set -euo pipefail
+          gh release create "one-${PC_VERSION}" dist/pc-companion/* \
+            --target "${GITHUB_SHA}" \
+            --title "Cyclone One ${PC_VERSION} — native camera streaming" \
+            --notes-file docs/RELEASE_ONE_1.5.5.md

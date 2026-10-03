@@ -1,0 +1,50 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Cyclone One",
+  "version": "1.6.0-alpha.43",
+  "identifier": "com.cyclone.pccompanion",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build",
+    "devUrl": "http://localhost:1420",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Cyclone Glass",
+        "width": 1440,
+        "height": 920,
+        "minWidth": 760,
+        "minHeight": 600,
+        "resizable": true,
+        "fullscreen": false,
+        "decorations": true,
+        "transparent": false,
+        "backgroundColor": "#0b0b0e"
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; connect-src 'self' http://127.0.0.1:* ws://127.0.0.1:*; img-src 'self' data: blob: http://127.0.0.1:*; style-src 'self' 'unsafe-inline'; script-src 'self'"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis"],
+    "externalBin": [
+      "binaries/CyclonePCRuntime",
+      "binaries/CycloneAgentMCP",
+      "binaries/CycloneLivePhone"
+    ],
+    "resources": {
+      "resources/": ""
+    },
+    "windows": {
+      "nsis": {
+        "displayLanguageSelector": false,
+        "installMode": "currentUser",
+        "installerHooks": "./windows/installer-hooks.nsh"
+      }
+    }
+  }
+}

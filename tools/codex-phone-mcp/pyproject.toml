@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cyclone-phone-mcp"
+version = "5.0.0-alpha.102.dev1"
+description = "Codex-facing MCP bridge for the Cyclone PC Device Gateway"
+requires-python = ">=3.11"
+authors = [{name = "Cyclone"}]
+dependencies = ["pillow>=10,<12"]
+
+[project.scripts]
+cyclone-phone-mcp = "cyclone_phone_mcp.__main__:main"
+cyclone-phone-acceptance = "cyclone_phone_mcp.acceptance:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["cyclone_phone_mcp*"]

@@ -1,0 +1,5 @@
+config/gateway.env
+artifacts/
+*.log
+*.pid
+runtime/

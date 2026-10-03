@@ -1,0 +1,6 @@
+{
+  "$id": "cyclone-fleet-health-v1",
+  "version": 1,
+  "description": "Device facts for fleet preflight. No messages, contacts, or secrets.",
+  "properties": ["batteryPercent", "charging", "network", "freeStorageMb", "os", "model", "permissions"]
+}

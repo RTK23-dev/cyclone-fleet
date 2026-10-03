@@ -1,0 +1,12 @@
+{
+  "device": {"serial": "MOCKPIXEL8", "model": "Pixel 8", "androidVersion": "16"},
+  "package": "com.android.settings",
+  "activity": ".Settings",
+  "pageKey": "settings::root",
+  "title": "Settings",
+  "rawNodeCount": 314,
+  "semanticControlCount": 54,
+  "agentControlCount": 36,
+  "controls": [{"id": "network", "label": "Network & internet", "role": "button", "resourceId": "android:id/title", "clickable": true}],
+  "screenshot": {"id": "shot-settings", "path": "C:\\Cyclone\\shots\\settings.png"}
+}

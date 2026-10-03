@@ -1,0 +1,193 @@
+name: Publish owner-approved V5 alpha.43 dev alpha (rotated release key)
+on:
+  push:
+    branches: ['claude/cyclone-v5-handoff-review-9qrs40']
+    paths: ['.github/workflows/v5-alpha43-publish.yml']
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: v5-alpha43-publish
+  cancel-in-progress: true
+env:
+  SOURCE_SHA: 384235926ed02f24d2d1dd46c9e51d865b305ada
+  MOBILE_RUN: '36265810847'
+  PC_RUN: '36265810661'
+  GLASS_UI_RUN: '36265810660'
+  APK_NAME: Cyclone-5.0.0-alpha.43.dev1.apk
+  # The rotated release key (alpha.34 and the re-signed alpha.39) and the historical key its lineage starts from.
+  RELEASE_CERT_SHA256: e78c6e0b32d66da05839243c65e9987ba54722d402543f00408b57b1585dbf60
+  HISTORICAL_CERT_SHA256: cc2a7a5d8e5e3686d8f7afe0a0e6e76ca42a1e6e6306e26f0eba84e4e69f3965
+jobs:
+  publish:
+    environment: mobile-release-approval
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: 384235926ed02f24d2d1dd46c9e51d865b305ada
+          persist-credentials: false
+      - name: Download and verify existing successful builds
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          for run in "$MOBILE_RUN" "$PC_RUN" "$GLASS_UI_RUN"; do
+            for attempt in $(seq 1 90); do
+              gh api "repos/$GITHUB_REPOSITORY/actions/runs/$run" > "$RUNNER_TEMP/ci-$run.json"
+              jq -e --arg sha "$SOURCE_SHA" --arg repo "$GITHUB_REPOSITORY" '.head_sha == $sha and .head_repository.full_name == $repo and .event == "push" and .head_branch == "release/cyclone-mobile-v5.0.0-alpha.43.dev1"' "$RUNNER_TEMP/ci-$run.json" >/dev/null
+              if jq -e '.status == "completed"' "$RUNNER_TEMP/ci-$run.json" >/dev/null; then
+                jq -e '.conclusion == "success"' "$RUNNER_TEMP/ci-$run.json" >/dev/null
+                break
+              fi
+              if [ "$attempt" = 90 ]; then echo "Timed out waiting for CI $run" >&2; exit 1; fi
+              echo "Waiting for exact-source CI $run ($attempt/90)"
+              sleep 20
+            done
+          done
+          gh run download "$MOBILE_RUN" --repo "$GITHUB_REPOSITORY" --name Cyclone-Android-5.0.0-alpha.43.dev1 --dir candidate
+          gh run download "$PC_RUN" --repo "$GITHUB_REPOSITORY" --name "cyclone-pc-companion-$SOURCE_SHA" --dir glass-download
+          python - <<'PY'
+          from pathlib import Path
+          import shutil
+          root = Path('glass-download')
+          print('Glass artifact files:', [str(p.relative_to(root)) for p in root.rglob('*') if p.is_file()])
+          Path('glass').mkdir()
+          for name in ['Cyclone-PC-Companion-1.6.0-alpha.43-Setup.exe', 'release-provenance.json', 'installer-acceptance.json', 'source-sha.txt', 'THIRD_PARTY_NOTICES', 'SHA256SUMS.txt']:
+              matches = list(root.rglob(name))
+              if len(matches) != 1:
+                  raise SystemExit(f'Expected exactly one {name}, got {len(matches)}')
+              shutil.copyfile(matches[0], Path('glass') / name)
+          PY
+          test "$(tr -d '\r\n' < candidate/source-sha.txt)" = "$SOURCE_SHA"
+          test "$(tr -d '\r\n' < candidate/run-id.txt)" = "$MOBILE_RUN"
+          test "$(tr -d '\r\n' < candidate/signing-state.txt)" = UNSIGNED_VERIFIED_CANDIDATE
+          (cd candidate && sha256sum --check Cyclone-5.0.0-alpha.43.dev1.apk.sha256)
+          (cd glass-download && sha256sum --check SHA256SUMS.txt)
+          python - <<'PY'
+          import json, os, hashlib
+          from pathlib import Path
+          root = Path('glass-download')
+          provenance = json.loads((root / 'release-provenance.json').read_text(encoding='utf-8-sig'))
+          assert provenance['source_sha'] == os.environ['SOURCE_SHA']
+          assert provenance['version'] == '1.6.0-alpha.43'
+          assert (root / 'source-sha.txt').read_text().strip() == os.environ['SOURCE_SHA']
+          artifacts = provenance['artifacts']
+          assert any(a['name'] == 'Cyclone-PC-Companion-1.6.0-alpha.43-Setup.exe' for a in artifacts)
+          for artifact in artifacts:
+              assert Path(artifact['name']).name == artifact['name']
+              payload = root / artifact['name']
+              assert payload.stat().st_size == artifact['size_bytes']
+              assert hashlib.sha256(payload.read_bytes()).hexdigest() == artifact['sha256']
+          print('All Glass installer and bundled sidecar hashes verified')
+          PY
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3
+        with:
+          packages: platform-tools
+
+      - name: Install Android build tools
+        run: sdkmanager --install 'build-tools;35.0.0'
+
+      - name: Validate protected Android signing secrets
+        env:
+          CYCLONE_KEYSTORE_B64: ${{ secrets.CYCLONE_ANDROID_KEYSTORE_B64 }}
+          CYCLONE_STORE_PASSWORD: ${{ secrets.CYCLONE_ANDROID_STORE_PASSWORD }}
+          CYCLONE_KEY_ALIAS: ${{ secrets.CYCLONE_ANDROID_KEY_ALIAS }}
+          CYCLONE_KEY_PASSWORD: ${{ secrets.CYCLONE_ANDROID_KEY_PASSWORD }}
+          CYCLONE_SIGNING_LINEAGE_B64: ${{ secrets.CYCLONE_ANDROID_SIGNING_LINEAGE_B64 }}
+        run: |
+          set -euo pipefail
+          missing=()
+          test -n "$CYCLONE_KEYSTORE_B64" || missing+=(CYCLONE_ANDROID_KEYSTORE_B64)
+          test -n "$CYCLONE_STORE_PASSWORD" || missing+=(CYCLONE_ANDROID_STORE_PASSWORD)
+          test -n "$CYCLONE_KEY_ALIAS" || missing+=(CYCLONE_ANDROID_KEY_ALIAS)
+          test -n "$CYCLONE_KEY_PASSWORD" || missing+=(CYCLONE_ANDROID_KEY_PASSWORD)
+          test -n "$CYCLONE_SIGNING_LINEAGE_B64" || missing+=(CYCLONE_ANDROID_SIGNING_LINEAGE_B64)
+          if [ "${#missing[@]}" -ne 0 ]; then echo "Missing release signing secrets: ${missing[*]}" >&2; exit 1; fi
+
+      - name: Sign with the rotated release key and verify it matches alpha.34 and alpha.39
+        env:
+          CYCLONE_KEYSTORE_B64: ${{ secrets.CYCLONE_ANDROID_KEYSTORE_B64 }}
+          CYCLONE_STORE_PASSWORD: ${{ secrets.CYCLONE_ANDROID_STORE_PASSWORD }}
+          CYCLONE_KEY_ALIAS: ${{ secrets.CYCLONE_ANDROID_KEY_ALIAS }}
+          CYCLONE_KEY_PASSWORD: ${{ secrets.CYCLONE_ANDROID_KEY_PASSWORD }}
+          CYCLONE_SIGNING_LINEAGE_B64: ${{ secrets.CYCLONE_ANDROID_SIGNING_LINEAGE_B64 }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p signed
+          keystore="$RUNNER_TEMP/cyclone-release.keystore"
+          lineage="$RUNNER_TEMP/cyclone-signing-lineage"
+          printf '%s' "$CYCLONE_KEYSTORE_B64" | base64 --decode > "$keystore"
+          printf '%s' "$CYCLONE_SIGNING_LINEAGE_B64" | base64 --decode > "$lineage"
+          chmod 600 "$keystore" "$lineage"
+          bt="$ANDROID_SDK_ROOT/build-tools/35.0.0"
+          "$bt/apksigner" sign \
+            --ks "$keystore" \
+            --ks-key-alias "$CYCLONE_KEY_ALIAS" \
+            --ks-pass env:CYCLONE_STORE_PASSWORD \
+            --key-pass env:CYCLONE_KEY_PASSWORD \
+            --lineage "$lineage" \
+            --rotation-min-sdk-version 33 \
+            --v1-signing-enabled false \
+            --v2-signing-enabled false \
+            --v3-signing-enabled true \
+            --v4-signing-enabled false \
+            --out "signed/$APK_NAME" \
+            "candidate/$APK_NAME"
+          mkdir -p reference
+          gh release download v5.0.0-alpha.34.dev1 --repo "$GITHUB_REPOSITORY" --pattern 'Cyclone-5.0.0-alpha.34.dev1.apk' --dir reference
+          gh release download v5.0.0-alpha.39.dev1 --repo "$GITHUB_REPOSITORY" --pattern 'Cyclone-5.0.0-alpha.39.dev1.apk' --dir reference
+          "$bt/apksigner" verify --min-sdk-version 33 --verbose --print-certs "signed/$APK_NAME" | tee signed/signing-info.txt
+          "$bt/apksigner" lineage --in "$lineage" --print-certs -v > signed/signing-lineage.txt
+          # The signer phones now require: the same certificate that signed alpha.34.
+          new_cert="$("$bt/apksigner" verify --min-sdk-version 33 --print-certs "signed/$APK_NAME" | sed -n 's/^Signer #1 certificate SHA-256 digest: //p' | head -1)"
+          ref_cert="$("$bt/apksigner" verify --print-certs reference/Cyclone-5.0.0-alpha.34.dev1.apk | sed -n 's/^Signer #1 certificate SHA-256 digest: //p' | head -1)"
+          prev_cert="$("$bt/apksigner" verify --print-certs reference/Cyclone-5.0.0-alpha.39.dev1.apk | sed -n 's/^Signer #1 certificate SHA-256 digest: //p' | head -1)"
+          echo "alpha.43 signer: $new_cert"
+          echo "alpha.39 (re-signed) signer: $prev_cert"
+          echo "alpha.34 signer: $ref_cert"
+          test "$new_cert" = "$RELEASE_CERT_SHA256"
+          test "$new_cert" = "$ref_cert"
+          test "$new_cert" = "$prev_cert"
+          # The lineage still proves the historical key, so phones still on alpha.33 or older can update too.
+          grep -q "$HISTORICAL_CERT_SHA256" signed/signing-lineage.txt
+          grep -q "$RELEASE_CERT_SHA256" signed/signing-lineage.txt
+          "$bt/aapt2" dump badging "signed/$APK_NAME" > badging.txt
+          grep -q "package: name='com.cyclone.mobile' versionCode='185' versionName='5.0.0-alpha.43.dev1'" badging.txt
+          (cd signed && sha256sum "$APK_NAME" > "$APK_NAME.sha256")
+          printf '%s\n' 'SIGNED_PROTECTED_ENVIRONMENT_ROTATED' > signed/signing-state.txt
+          cp candidate/source-sha.txt candidate/run-id.txt candidate/mobile-metadata.json signed/
+          printf '%s\n' "Signed with the rotated Cyclone release key (CN=Cyclone Mobile, OU=Release) and its signing lineage from the historical development key, the same signer as alpha.34, the re-signed alpha.39, alpha.40, alpha.41 and alpha.42. Installs as an update over alpha.34, alpha.39, alpha.40, alpha.41, alpha.42 and alpha.33 or older. It does not install over alpha.35-38 as first published (historical key only)." > signed/update-compatibility.txt
+
+      - name: Destroy temporary signing material
+        if: always()
+        run: rm -f "$RUNNER_TEMP/cyclone-release.keystore" "$RUNNER_TEMP/cyclone-signing-lineage"
+
+      - name: Publish paired developer prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os, hashlib
+          from pathlib import Path
+          files = [Path('signed/Cyclone-5.0.0-alpha.43.dev1.apk'), Path('glass/Cyclone-PC-Companion-1.6.0-alpha.43-Setup.exe')]
+          manifest = {
+              'source_sha': os.environ['SOURCE_SHA'],
+              'mobile_ci_run_id': int(os.environ['MOBILE_RUN']),
+              'pc_ci_run_id': int(os.environ['PC_RUN']),
+              'glass_ui_ci_run_id': int(os.environ['GLASS_UI_RUN']),
+              'physical_acceptance': 'NOT_YET_VERIFIED_OWNER_TEST_BUILD',
+              'signing': 'ROTATED_RELEASE_KEY_WITH_LINEAGE',
+              'sha256': {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in files},
+          }
+          Path('release-manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
+          notes = Path('docs/RELEASE_5.0.0-alpha.43.dev1.md').read_text()
+          downloads = 'Download **Cyclone-5.0.0-alpha.43.dev1.apk** for Android and **Cyclone-PC-Companion-1.6.0-alpha.43-Setup.exe** for Windows (includes Glass).\n\n'
+          Path('RELEASE_NOTES.md').write_text(downloads + notes)
+          PY
+          gh release create v5.0.0-alpha.43.dev1 signed/* glass/Cyclone-PC-Companion-1.6.0-alpha.43-Setup.exe glass/SHA256SUMS.txt glass/release-provenance.json glass/installer-acceptance.json glass/THIRD_PARTY_NOTICES release-manifest.json \
+            --repo "$GITHUB_REPOSITORY" --target "$SOURCE_SHA" --title "Cyclone V5 Alpha 43 — Glass overlay (developer alpha)" --prerelease --draft --notes-file RELEASE_NOTES.md
+          gh release edit v5.0.0-alpha.43.dev1 --repo "$GITHUB_REPOSITORY" --draft=false --prerelease

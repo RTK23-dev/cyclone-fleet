@@ -1,0 +1,12 @@
+{
+  "name": "an image from the PC",
+  "about": "A profile-picture step: the run waits for an image from the PC image picker, saves it to the run folder and logs it.",
+  "run": {"runId": "run_dev_image", "taskId": "task_dev_2", "app": "com.example.app"},
+  "steps": [
+    {"emit": "run.event", "data": {"stage": "started"}},
+    {"emit": "run.event", "data": {"stage": "page"}, "pageKey": "profile:photo"},
+    {"await": "file.in", "match": {"kind": "image"}, "timeoutS": 60},
+    {"emit": "log.line", "data": {"text": "profile photo received"}},
+    {"emit": "run.event", "data": {"stage": "done"}}
+  ]
+}

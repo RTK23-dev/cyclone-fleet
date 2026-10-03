@@ -1,0 +1,38 @@
+{
+  "about": "Test vectors for X-Cyclone-Signature (SPEC.md \u00a74). A plugin in any language must produce header from the inputs. The secret's 'kN.' prefix is its key id; without one the key id is k1.",
+  "vectors": [
+    {
+      "name": "await, default key",
+      "secret": "dev-secret",
+      "method": "POST",
+      "path": "/ports/code.in/await",
+      "body": "{\"v\":1,\"port\":\"code.in\"}",
+      "t": 1790000000,
+      "requestId": "req_0001",
+      "signingString": "1790000000\nreq_0001\nPOST\n/ports/code.in/await\n3f62d31e53a4b9d3d66534e960e45fb0c980e89f2d3d626995e3ababd5e980fa",
+      "header": "t=1790000000,kid=k1,id=req_0001,v1=5bf43b17f7985060dca7e08a371d3e9580c14006672315933c5105644fe01d31"
+    },
+    {
+      "name": "out port, rotated key k2",
+      "secret": "k2.rotated-secret-value",
+      "method": "POST",
+      "path": "/ports/run.event",
+      "body": "{\"v\":1,\"port\":\"run.event\",\"data\":{\"stage\":\"started\"}}",
+      "t": 1790000300,
+      "requestId": "req_0002",
+      "signingString": "1790000300\nreq_0002\nPOST\n/ports/run.event\n55a1979d5e389d486303552fc02c2a5b06382a97c47b101dfef3dd4f936f73c9",
+      "header": "t=1790000300,kid=k2,id=req_0002,v1=bc218225359cd699fcac78af763fc2ff24af249f082d61651740f24989f8bc7c"
+    },
+    {
+      "name": "empty body, path with query",
+      "secret": "k1.s3cr3t.with.dots",
+      "method": "POST",
+      "path": "/ports/log.line?x=1",
+      "body": "",
+      "t": 1790000600,
+      "requestId": "req_0003",
+      "signingString": "1790000600\nreq_0003\nPOST\n/ports/log.line?x=1\ne3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "header": "t=1790000600,kid=k1,id=req_0003,v1=141a34243bceb1a2f97ee83190b823237ef810a681c1bfe711e38236ceff5f4c"
+    }
+  ]
+}

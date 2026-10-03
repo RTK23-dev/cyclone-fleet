@@ -1,0 +1,12 @@
+{
+  "contract": "cyclone.ports/1",
+  "name": "pc-images",
+  "version": "0.1.0",
+  "title": "PC image picker",
+  "description": "Sends the newest image in a PC folder to the phone when a run asks for a file. Drop an image in the folder while the run waits.",
+  "endpoint": "http://127.0.0.1:8772",
+  "serves": [
+    {"port": "file.in", "way": "in"}
+  ],
+  "needs": {"personal": true}
+}

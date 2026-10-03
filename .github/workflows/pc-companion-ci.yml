@@ -1,0 +1,176 @@
+name: Cyclone PC Companion CI
+
+on:
+  pull_request:
+    paths:
+      - 'apps/pc-companion/**'
+      - 'apps/glass/**'
+      - 'apps/device-gateway/**'
+      - 'tools/cyclone-agent-mcp/**'
+      - 'tools/codex-phone-mcp/**'
+      - 'tools/cyclone-ports-sdk/**'
+      - 'packaging/pc-companion/**'
+      - 'scripts/pc-companion/**'
+      - 'scripts/vmos/**'
+      - 'release/version.toml'
+      - '.github/workflows/pc-companion-ci.yml'
+      - '.github/workflows/pc-companion-release.yml'
+      - '.github/workflows/pc-companion-publish.yml'
+      - '.github/actions/stage-glass-ci/**'
+      - 'scripts/pc-companion/verify-v5-release-artifact.py'
+  push:
+    branches: [main, 'codex/cyclone-4.4.2-one-1.5.5-camera', 'codex/live-phone', 'release/cyclone-one-v*', 'release/cyclone-v5-*']
+    paths:
+      - 'apps/pc-companion/**'
+      - 'apps/glass/**'
+      - 'apps/device-gateway/**'
+      - 'tools/cyclone-agent-mcp/**'
+      - 'tools/codex-phone-mcp/**'
+      - 'tools/cyclone-ports-sdk/**'
+      - 'packaging/pc-companion/**'
+      - 'scripts/pc-companion/**'
+      - 'scripts/vmos/**'
+      - 'release/version.toml'
+      - '.github/workflows/pc-companion-ci.yml'
+      - '.github/workflows/pc-companion-release.yml'
+      - '.github/workflows/pc-companion-publish.yml'
+      - '.github/actions/stage-glass-ci/**'
+      - 'scripts/pc-companion/verify-v5-release-artifact.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pc-companion-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows-companion:
+    name: Windows companion
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Verify exact source checkout
+        shell: pwsh
+        run: |
+          $Expected = '${{ github.event.pull_request.head.sha || github.sha }}'
+          $Actual = (git rev-parse HEAD).Trim()
+          if ($Actual -ne $Expected) {
+            throw "Installer acceptance must build the literal source head. expected=$Expected actual=$Actual"
+          }
+          Write-Host "Exact source checkout accepted: $Actual"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13.7'
+      - name: Verify Glass and release metadata coherence
+        shell: pwsh
+        run: |
+          python scripts/ci/release_versions.py --check
+          $Code = @'
+          import json,re,tomllib
+          from pathlib import Path
+          package=json.loads(Path('apps/pc-companion/package.json').read_text())
+          tauri=json.loads(Path('apps/pc-companion/src-tauri/tauri.conf.json').read_text())
+          cargo=Path('apps/pc-companion/src-tauri/Cargo.toml').read_text()
+          release=tomllib.loads(Path('release/version.toml').read_text())
+          gradle=Path('apps/mobile/app/build.gradle.kts').read_text()
+          expected_pc=release['components']['pc_companion']
+          assert package['version']==expected_pc
+          assert tauri['version']==expected_pc
+          assert re.search(rf'^version = "{re.escape(expected_pc)}"$', cargo, re.M)
+
+          mobile=release['components']['mobile']
+          assert release['product_version']==mobile
+          assert re.search(rf'versionName = "{re.escape(mobile)}"', gradle)
+          code_match=re.search(r'versionCode = (\d+)', gradle)
+          assert code_match
+          assert release['android_version_code']==int(code_match.group(1))
+          assert release['release']['candidate_generation']
+          assert isinstance(release['release']['publication_authorized'], bool)
+          '@
+          $Code | python -
+      - name: Test gateway and MCP contracts
+        shell: pwsh
+        run: |
+          python -m pip install --disable-pip-version-check -e 'apps/device-gateway[test]' -e 'tools/cyclone-agent-mcp[test]' -e tools/codex-phone-mcp -e tools/cyclone-ports-sdk
+          python -m pytest -q apps/device-gateway/tests
+          python -m pytest -q tools/cyclone-agent-mcp/tests
+          python -m unittest discover -s tools/codex-phone-mcp/tests -v
+          python -m pytest -q -p no:cacheprovider tools/cyclone-ports-sdk/tests
+      - name: Validate VMOS PowerShell setup scripts
+        shell: pwsh
+        run: |
+          $failed = $false
+          @(Get-ChildItem 'scripts/vmos/*.ps1') + @(Get-ChildItem 'apps/pc-companion/src-tauri/resources/chatgpt-attach/scripts/*.ps1') | ForEach-Object {
+            $tokens = $null
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile($_.FullName, [ref]$tokens, [ref]$errors) | Out-Null
+            if ($errors.Count -gt 0) {
+              $failed = $true
+              Write-Host "PowerShell parse errors in $($_.FullName):"
+              $errors | ForEach-Object { Write-Host $_.Message }
+            }
+          }
+          if ($failed) { throw 'VMOS PowerShell setup scripts contain syntax errors.' }
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: apps/pc-companion/package-lock.json
+      - name: Test and compile PC Companion
+        shell: pwsh
+        run: |
+          Push-Location apps/pc-companion
+          npm ci --no-audit --no-fund
+          npm test
+          npm run build
+          Pop-Location
+      - name: Build frozen Python sidecars and bundled ADB
+        shell: pwsh
+        run: ./scripts/pc-companion/build-sidecars.ps1
+      - name: Build NSIS installer
+        shell: pwsh
+        run: |
+          Push-Location apps/pc-companion
+          npm run tauri build -- --bundles nsis
+          Pop-Location
+      - name: Stage candidate, install acceptance and provenance
+        shell: pwsh
+        run: |
+          $Installer = Get-ChildItem 'apps/pc-companion/src-tauri/target/release/bundle/nsis/*.exe' | Select-Object -First 1
+          if ($null -eq $Installer) { throw 'Cyclone NSIS installer was not produced.' }
+          $PcVersion = (Get-Content 'apps/pc-companion/package.json' | ConvertFrom-Json).version
+          New-Item -ItemType Directory -Force -Path dist/pc-companion | Out-Null
+          $Candidate = Join-Path 'dist/pc-companion' "Cyclone-PC-Companion-$PcVersion-Setup.exe"
+          Copy-Item $Installer.FullName $Candidate -Force
+          ./scripts/pc-companion/test-installed-candidate.ps1 -Installer $Candidate -Output dist/pc-companion/installer-acceptance.json
+          $Acceptance = Get-Content dist/pc-companion/installer-acceptance.json -Raw | ConvertFrom-Json
+          if (
+            -not $Acceptance.installed -or
+            -not $Acceptance.bundled_adb -or
+            $Acceptance.bundled_adb_version -ne '37.0.1' -or
+            -not $Acceptance.gateway_ready -or
+            -not $Acceptance.gateway_authenticated -or
+            -not $Acceptance.transport_onboarding_api -or
+            -not $Acceptance.camera_streaming_api -or
+            -not $Acceptance.first_run_guide -or
+            -not $Acceptance.vmos_image_tip -or
+            -not $Acceptance.mobile_tip -or
+            -not $Acceptance.trust_pairing_tip -or
+            -not $Acceptance.chatgpt_attach_sync -or
+            -not $Acceptance.cloud_control_health
+          ) {
+            throw 'Installed candidate did not satisfy the self-contained first-run acceptance contract.'
+          }
+          python scripts/pc-companion/generate-third-party-notices.py --lock packaging/pc-companion/third-party-binaries.lock.json --output dist/pc-companion/THIRD_PARTY_NOTICES
+          python scripts/pc-companion/generate-release-metadata.py --artifact-dir dist/pc-companion --source-sha '${{ github.event.pull_request.head.sha || github.sha }}' --version $PcVersion --third-party-lock packaging/pc-companion/third-party-binaries.lock.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cyclone-pc-companion-${{ github.event.pull_request.head.sha || github.sha }}
+          path: dist/pc-companion/
+          if-no-files-found: error
+          retention-days: 30

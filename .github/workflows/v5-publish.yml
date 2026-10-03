@@ -1,0 +1,284 @@
+name: Publish V5 phone, Glass and PC developer alpha (rotated release key)
+# One push releases: when release/version.toml changes on the development branch, this waits for the phone build of
+# that exact commit (Cyclone Mobile CI), builds Glass, builds the web-only Cyclone for Windows package on Windows and
+# proves it installs and serves Glass (plan 31), signs the APK with the rotated release key, proves the signer and
+# version, and publishes. The retired Cyclone One desktop window is not built.
+on:
+  push:
+    branches: ['claude/cyclone-v5-handoff-review-9qrs40']
+    paths: ['release/version.toml']
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: v5-publish
+  cancel-in-progress: false
+env:
+  # The rotated release key (alpha.34 and every release since alpha.39) and the historical key its lineage starts from.
+  RELEASE_CERT_SHA256: e78c6e0b32d66da05839243c65e9987ba54722d402543f00408b57b1585dbf60
+  HISTORICAL_CERT_SHA256: cc2a7a5d8e5e3686d8f7afe0a0e6e76ca42a1e6e6306e26f0eba84e4e69f3965
+jobs:
+  pc-package:
+    # Plan 31: Cyclone for Windows is the runtime + Glass + the `cyclone` command, one zip, no desktop window.
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.13.7'
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      - name: Test the PC stack on Windows
+        shell: pwsh
+        run: |
+          python -m pip install --disable-pip-version-check -e 'apps/device-gateway[test]' -e 'tools/cyclone-agent-mcp[test]' -e tools/codex-phone-mcp -e tools/cyclone-ports-sdk
+          # What the package runs on Windows: the PC features, the cyclone command, Glass hosting and the tooling seam.
+          python -m pytest -q apps/device-gateway/tests/test_pc_features.py apps/device-gateway/tests/test_cyclone_terminal.py apps/device-gateway/tests/test_glass_hosting.py apps/device-gateway/tests/test_tooling_seam.py apps/device-gateway/tests/test_market.py
+      - name: Build, install and smoke-test Cyclone-PC
+        shell: pwsh
+        run: |
+          $product = (python -c "import tomllib; print(tomllib.load(open('release/version.toml','rb'))['product_version'])").Trim()
+          ./scripts/pc/build-pc-package.ps1 -Version $product -OutDir dist/pc-package
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: cyclone-pc-package
+          path: dist/pc-package/
+          if-no-files-found: error
+
+  publish:
+    needs: pc-package
+    environment: mobile-release-approval
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Read the release from version.toml
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import tomllib
+          data = tomllib.load(open('release/version.toml', 'rb'))
+          mobile = data['components']['mobile']
+          print(f"mobile={mobile}")
+          print(f"code={data['android_version_code']}")
+          print(f"glass={data['components']['glass']}")
+          print(f"pc={data['components']['pc_companion']}")
+          print(f"product={data['product_version']}")
+          print(f"tag=v{mobile}")
+          print(f"apk=Cyclone-{mobile}.apk")
+          PY
+          cat "$GITHUB_OUTPUT"
+          mobile="$(sed -n 's/^mobile=//p' "$GITHUB_OUTPUT")"
+          test -f "docs/RELEASE_${mobile}.md" || { echo "docs/RELEASE_${mobile}.md is missing: no release." >&2; exit 1; }
+          if gh release view "v${mobile}" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "v${mobile} is already published; nothing to do."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Wait for this commit's phone build and verify it
+        if: steps.release.outputs.skip == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MOBILE: ${{ steps.release.outputs.mobile }}
+          APK_NAME: ${{ steps.release.outputs.apk }}
+        run: |
+          set -euo pipefail
+          run=""
+          for attempt in $(seq 1 120); do
+            gh api "repos/$GITHUB_REPOSITORY/actions/workflows/mobile-ci.yml/runs?head_sha=$GITHUB_SHA&event=push&per_page=5" > runs.json
+            run="$(jq -r '.workflow_runs | sort_by(.run_number) | last | .id // empty' runs.json)"
+            if [ -n "$run" ]; then
+              status="$(jq -r '.workflow_runs | sort_by(.run_number) | last | .status' runs.json)"
+              if [ "$status" = completed ]; then
+                jq -e '.workflow_runs | sort_by(.run_number) | last | .conclusion == "success"' runs.json >/dev/null \
+                  || { echo "The phone build for $GITHUB_SHA did not pass: no release." >&2; exit 1; }
+                break
+              fi
+            fi
+            if [ "$attempt" = 120 ]; then echo "Timed out waiting for the phone build" >&2; exit 1; fi
+            echo "Waiting for the phone build of $GITHUB_SHA ($attempt/120)"
+            sleep 15
+          done
+          echo "MOBILE_RUN=$run" >> "$GITHUB_ENV"
+          gh run download "$run" --repo "$GITHUB_REPOSITORY" --name "Cyclone-Android-$MOBILE" --dir candidate
+          test "$(tr -d '\r\n' < candidate/source-sha.txt)" = "$GITHUB_SHA"
+          test "$(tr -d '\r\n' < candidate/run-id.txt)" = "$run"
+          test "$(tr -d '\r\n' < candidate/signing-state.txt)" = UNSIGNED_VERIFIED_CANDIDATE
+          (cd candidate && sha256sum --check "$APK_NAME.sha256")
+
+      - name: Set up Node for Glass
+        if: steps.release.outputs.skip == 'false'
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+
+      - name: Build and package Glass
+        if: steps.release.outputs.skip == 'false'
+        env:
+          GLASS: ${{ steps.release.outputs.glass }}
+        run: |
+          set -euo pipefail
+          (cd apps/glass && npm ci && npm test && npm run build)
+          python scripts/ci/glass_guard.py
+          mkdir -p glass
+          (cd apps/glass/dist && zip -qr "../../../glass/Cyclone-Glass-$GLASS.zip" .)
+          (cd glass && sha256sum "Cyclone-Glass-$GLASS.zip" > "Cyclone-Glass-$GLASS.zip.sha256")
+
+      - name: Collect the Windows package
+        if: steps.release.outputs.skip == 'false'
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: cyclone-pc-package
+          path: pc
+
+      - name: Verify the Windows package and add its installer
+        if: steps.release.outputs.skip == 'false'
+        env:
+          PRODUCT: ${{ steps.release.outputs.product }}
+        run: |
+          set -euo pipefail
+          test -f "pc/Cyclone-PC-$PRODUCT.zip"
+          (cd pc && sha256sum --check "Cyclone-PC-$PRODUCT.zip.sha256")
+          unzip -l "pc/Cyclone-PC-$PRODUCT.zip" | grep -q ' CyclonePCRuntime.exe$'
+          if unzip -l "pc/Cyclone-PC-$PRODUCT.zip" | grep -Eq 'gateway\.env$|fleet\.dpapi$'; then echo "The package carries owner secrets" >&2; exit 1; fi
+          cp packaging/pc/install.ps1 pc/install.ps1
+          # alpha.48: the one-double-click setup, built and install/uninstall-tested on Windows by the pc-package job.
+          test -f "pc/Cyclone-Setup-$PRODUCT.exe"
+          (cd pc && sha256sum --check "Cyclone-Setup-$PRODUCT.exe.sha256")
+
+      - name: Set up Android SDK
+        if: steps.release.outputs.skip == 'false'
+        uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3
+        with:
+          packages: platform-tools
+
+      - name: Install Android build tools
+        if: steps.release.outputs.skip == 'false'
+        run: sdkmanager --install 'build-tools;35.0.0'
+
+      - name: Sign with the rotated release key and verify it matches alpha.34 and alpha.39
+        if: steps.release.outputs.skip == 'false'
+        env:
+          CYCLONE_KEYSTORE_B64: ${{ secrets.CYCLONE_ANDROID_KEYSTORE_B64 }}
+          CYCLONE_STORE_PASSWORD: ${{ secrets.CYCLONE_ANDROID_STORE_PASSWORD }}
+          CYCLONE_KEY_ALIAS: ${{ secrets.CYCLONE_ANDROID_KEY_ALIAS }}
+          CYCLONE_KEY_PASSWORD: ${{ secrets.CYCLONE_ANDROID_KEY_PASSWORD }}
+          CYCLONE_SIGNING_LINEAGE_B64: ${{ secrets.CYCLONE_ANDROID_SIGNING_LINEAGE_B64 }}
+          GH_TOKEN: ${{ github.token }}
+          MOBILE: ${{ steps.release.outputs.mobile }}
+          CODE: ${{ steps.release.outputs.code }}
+          APK_NAME: ${{ steps.release.outputs.apk }}
+        run: |
+          set -euo pipefail
+          missing=()
+          test -n "$CYCLONE_KEYSTORE_B64" || missing+=(CYCLONE_ANDROID_KEYSTORE_B64)
+          test -n "$CYCLONE_STORE_PASSWORD" || missing+=(CYCLONE_ANDROID_STORE_PASSWORD)
+          test -n "$CYCLONE_KEY_ALIAS" || missing+=(CYCLONE_ANDROID_KEY_ALIAS)
+          test -n "$CYCLONE_KEY_PASSWORD" || missing+=(CYCLONE_ANDROID_KEY_PASSWORD)
+          test -n "$CYCLONE_SIGNING_LINEAGE_B64" || missing+=(CYCLONE_ANDROID_SIGNING_LINEAGE_B64)
+          if [ "${#missing[@]}" -ne 0 ]; then echo "Missing release signing secrets: ${missing[*]}" >&2; exit 1; fi
+          mkdir -p signed
+          keystore="$RUNNER_TEMP/cyclone-release.keystore"
+          lineage="$RUNNER_TEMP/cyclone-signing-lineage"
+          printf '%s' "$CYCLONE_KEYSTORE_B64" | base64 --decode > "$keystore"
+          printf '%s' "$CYCLONE_SIGNING_LINEAGE_B64" | base64 --decode > "$lineage"
+          chmod 600 "$keystore" "$lineage"
+          bt="$ANDROID_SDK_ROOT/build-tools/35.0.0"
+          "$bt/apksigner" sign \
+            --ks "$keystore" \
+            --ks-key-alias "$CYCLONE_KEY_ALIAS" \
+            --ks-pass env:CYCLONE_STORE_PASSWORD \
+            --key-pass env:CYCLONE_KEY_PASSWORD \
+            --lineage "$lineage" \
+            --rotation-min-sdk-version 33 \
+            --v1-signing-enabled false \
+            --v2-signing-enabled false \
+            --v3-signing-enabled true \
+            --v4-signing-enabled false \
+            --out "signed/$APK_NAME" \
+            "candidate/$APK_NAME"
+          mkdir -p reference
+          gh release download v5.0.0-alpha.34.dev1 --repo "$GITHUB_REPOSITORY" --pattern 'Cyclone-5.0.0-alpha.34.dev1.apk' --dir reference
+          gh release download v5.0.0-alpha.39.dev1 --repo "$GITHUB_REPOSITORY" --pattern 'Cyclone-5.0.0-alpha.39.dev1.apk' --dir reference
+          "$bt/apksigner" verify --min-sdk-version 33 --verbose --print-certs "signed/$APK_NAME" | tee signed/signing-info.txt
+          "$bt/apksigner" lineage --in "$lineage" --print-certs -v > signed/signing-lineage.txt
+          new_cert="$("$bt/apksigner" verify --min-sdk-version 33 --print-certs "signed/$APK_NAME" | sed -n 's/^Signer #1 certificate SHA-256 digest: //p' | head -1)"
+          ref_cert="$("$bt/apksigner" verify --print-certs reference/Cyclone-5.0.0-alpha.34.dev1.apk | sed -n 's/^Signer #1 certificate SHA-256 digest: //p' | head -1)"
+          prev_cert="$("$bt/apksigner" verify --print-certs reference/Cyclone-5.0.0-alpha.39.dev1.apk | sed -n 's/^Signer #1 certificate SHA-256 digest: //p' | head -1)"
+          echo "$MOBILE signer: $new_cert"
+          test "$new_cert" = "$RELEASE_CERT_SHA256"
+          test "$new_cert" = "$ref_cert"
+          test "$new_cert" = "$prev_cert"
+          grep -q "$HISTORICAL_CERT_SHA256" signed/signing-lineage.txt
+          grep -q "$RELEASE_CERT_SHA256" signed/signing-lineage.txt
+          "$bt/aapt2" dump badging "signed/$APK_NAME" > badging.txt
+          grep -q "package: name='com.cyclone.mobile' versionCode='$CODE' versionName='$MOBILE'" badging.txt
+          (cd signed && sha256sum "$APK_NAME" > "$APK_NAME.sha256")
+          printf '%s\n' 'SIGNED_PROTECTED_ENVIRONMENT_ROTATED' > signed/signing-state.txt
+          cp candidate/source-sha.txt candidate/run-id.txt candidate/mobile-metadata.json signed/
+          printf '%s\n' "Signed with the rotated Cyclone release key (CN=Cyclone Mobile, OU=Release) and its signing lineage from the historical development key, the same signer as alpha.34 and every release since the re-signed alpha.39. Installs as an update over alpha.34, alpha.39 and later, and alpha.33 or older. It does not install over alpha.35-38 as first published (historical key only)." > signed/update-compatibility.txt
+
+      - name: Destroy temporary signing material
+        if: always()
+        run: rm -f "$RUNNER_TEMP/cyclone-release.keystore" "$RUNNER_TEMP/cyclone-signing-lineage"
+
+      - name: Publish the developer prerelease
+        if: steps.release.outputs.skip == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MOBILE: ${{ steps.release.outputs.mobile }}
+          GLASS: ${{ steps.release.outputs.glass }}
+          PRODUCT: ${{ steps.release.outputs.product }}
+          TAG: ${{ steps.release.outputs.tag }}
+          APK_NAME: ${{ steps.release.outputs.apk }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os, hashlib
+          from pathlib import Path
+          apk = Path('signed') / os.environ['APK_NAME']
+          glass = Path('glass') / f"Cyclone-Glass-{os.environ['GLASS']}.zip"
+          pc = Path('pc') / f"Cyclone-PC-{os.environ['PRODUCT']}.zip"
+          installer = Path('pc') / 'install.ps1'
+          setup = Path('pc') / f"Cyclone-Setup-{os.environ['PRODUCT']}.exe"
+          manifest = {
+              'source_sha': os.environ['GITHUB_SHA'],
+              'mobile_ci_run_id': int(os.environ['MOBILE_RUN']),
+              'glass_version': os.environ['GLASS'],
+              'pc_package': pc.name,
+              'pc_setup': setup.name,
+              'pc_windows_signing': 'CI_UNSIGNED',
+              'physical_acceptance': 'NOT_YET_VERIFIED_OWNER_TEST_BUILD',
+              'signing': 'ROTATED_RELEASE_KEY_WITH_LINEAGE',
+              # `cyclone` and install.ps1 refuse a package whose SHA-256 is not listed here.
+              'sha256': {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in (apk, glass, pc, installer, setup)},
+          }
+          Path('release-manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
+          notes = Path(f"docs/RELEASE_{os.environ['MOBILE']}.md").read_text()
+          title = next(line[2:].strip() for line in notes.splitlines() if line.startswith('# '))
+          Path('release-title.txt').write_text(f"{title} (developer alpha)")
+          install = f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/releases/download/{os.environ['TAG']}/install.ps1"
+          downloads = (f"**Windows:** download **{setup.name}** and double-click it. It replaces any older Cyclone or "
+                       f"Cyclone One, keeps your pairing and keys, and adds Cyclone to the Start menu and the desktop. "
+                       f"Windows may say it protected your PC (the file is not code-signed yet): **More info** → **Run anyway**.\n\n"
+                       f"**Android:** download **{apk.name}** and install it as an update.\n\n"
+                       f"Also: already on alpha.47 or later, type `cyclone update`; or install from PowerShell with "
+                       f"`irm {install} | iex`. Glass alone: **{glass.name}**.\n\n")
+          Path('RELEASE_NOTES.md').write_text(downloads + notes)
+          PY
+          gh release create "$TAG" signed/* glass/* pc/* release-manifest.json \
+            --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "$(cat release-title.txt)" --prerelease --draft --notes-file RELEASE_NOTES.md
+          gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --draft=false --prerelease

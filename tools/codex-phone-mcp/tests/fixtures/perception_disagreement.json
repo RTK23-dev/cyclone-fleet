@@ -1,0 +1,9 @@
+{
+  "package": "com.example.canvas",
+  "pageKey": "canvas::root",
+  "title": "Canvas",
+  "rawNodeCount": 18,
+  "semanticControlCount": 4,
+  "agentControlCount": 4,
+  "debug": {"stage": "ACCESSIBILITY_PERCEPTION", "expected": "Continue", "rawHit": false, "semanticHit": false, "agentHit": false, "secondaryUiWitnessHit": true}
+}

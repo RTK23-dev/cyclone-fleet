@@ -1,0 +1,40 @@
+.fleet-scan-area {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.fleet-scan-status {
+  color: var(--muted);
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.scan-button {
+  min-width: 128px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.scan-button.scanning::before {
+  content: "";
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, .22);
+  border-top-color: var(--purple-bright);
+  animation: cyclone-scan-spin .7s linear infinite;
+}
+
+@keyframes cyclone-scan-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 720px) {
+  .fleet-header { align-items: flex-start; }
+  .fleet-scan-area { flex-direction: column-reverse; align-items: flex-end; gap: 6px; }
+  .fleet-scan-status { display: none; }
+}

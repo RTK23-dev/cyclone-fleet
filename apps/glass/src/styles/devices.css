@@ -1,0 +1,282 @@
+/* Devices: connect and disconnect phones (WhatsApp Web style). */
+.devices-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.devices-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.devices-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: var(--space-4);
+}
+
+.device-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.device-card-top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.device-badge {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border-radius: var(--radius-md);
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
+
+.device-problem {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+.device-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.device-confirm {
+  flex-basis: 100%;
+  font-size: var(--text-sm);
+  color: var(--text);
+}
+
+.connect-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--surface-muted);
+  font-size: var(--text-sm);
+}
+
+.connect-starting,
+.connect-connected,
+.connect-declined,
+.connect-expired,
+.connect-failed {
+  flex-direction: row;
+  align-items: center;
+}
+
+.connect-connected {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.connect-declined,
+.connect-expired,
+.connect-failed {
+  background: var(--warning-soft);
+  color: var(--text);
+}
+
+.connect-code {
+  font-family: var(--font-mono);
+  font-size: 34px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--text);
+}
+
+.connect-steps {
+  margin: 0;
+  padding-left: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  color: var(--text-muted);
+}
+
+.connect-waiting {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-muted);
+}
+
+.devices-help-list {
+  margin: 0;
+  padding-left: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+@media (max-width: 640px) {
+  .devices-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.section-title {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+/* Phone care (alpha 87): one calm line per phone, the evidence one click away. */
+.care {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--surface-muted);
+  font-size: var(--text-sm);
+}
+
+.care-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.care-dot {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: var(--radius-pill);
+  background: var(--success);
+}
+
+.care-attention .care-dot { background: var(--warning); }
+.care-problem .care-dot { background: var(--danger); }
+.care-working .care-dot { background: transparent; width: 14px; height: 14px; }
+.care-attention { background: var(--warning-soft); }
+.care-problem { background: var(--danger-soft); }
+
+.care-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.care-headline { font-weight: 600; color: var(--text); }
+.care-detail { color: var(--text-muted); }
+.care-hint { color: var(--text); font-size: var(--text-xs); }
+.care-toggle { margin-left: auto; }
+.care-row .btn-primary + .care-toggle { margin-left: 0; }
+
+.care-details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border);
+}
+
+.care-subtitle {
+  margin: 0;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.care-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.care-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.care-item-title { color: var(--text); }
+.care-item-unexpected .care-item-title { color: var(--danger); }
+.care-suspect,
+.care-path code { font-family: var(--font-mono); font-size: var(--text-xs); word-break: break-all; }
+.care-path { display: inline-flex; align-items: center; gap: var(--space-2); }
+
+.care-frames {
+  margin: 0;
+  max-height: 160px;
+  overflow: auto;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  line-height: 1.5;
+  color: var(--text-muted);
+  white-space: pre;
+}
+
+/* Connection line (alpha 88): the first broken link and its one action. */
+.conn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--warning-soft);
+  font-size: var(--text-sm);
+}
+
+.conn-working { background: var(--surface-muted); }
+.conn-dot { width: 8px; height: 8px; flex: none; border-radius: var(--radius-pill); background: var(--warning); }
+.conn-working .conn-dot { background: transparent; width: 14px; height: 14px; }
+.conn-text { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.conn-title { font-weight: 600; color: var(--text); }
+.conn-message { color: var(--text-muted); }
+
+/* Cloud phones (plan 44): the accounts and the phones this PC keeps connected. */
+.cloud-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+.cloud-form { display: flex; flex-direction: column; gap: var(--space-4); max-width: 560px; }
+.cloud-fields { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--space-3); }
+.cloud-field { display: flex; flex-direction: column; gap: var(--space-1); }
+.cloud-field-label { font-size: var(--text-xs); color: var(--text-muted); }
+.cloud-input {
+  font: inherit; font-size: var(--text-sm); color: var(--text); background: var(--surface);
+  border: 1px solid var(--border-strong); border-radius: var(--radius-sm); padding: var(--space-2) var(--space-3);
+  box-sizing: border-box; min-width: 0;
+}
+.cloud-input:focus { outline: none; box-shadow: var(--focus-ring); border-color: var(--accent); }
+.cloud-check { display: inline-flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); color: var(--text); }
+.cloud-warn { margin: 0; padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm); background: var(--warning-soft); font-size: var(--text-sm); color: var(--text); }
+.cloud-phones { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+.cloud-phone { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3); border-radius: var(--radius-md); background: var(--surface-muted); }
+.cloud-phone-top { display: flex; align-items: center; gap: var(--space-3); }
+.cloud-phone-text { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; font-size: var(--text-sm); }
+.cloud-phone-name { font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cloud-phone-message { color: var(--text-muted); }
+.cloud-address { display: flex; gap: var(--space-2); }
+.cloud-address .cloud-input { flex: 1 1 200px; }
+@media (max-width: 520px) {
+  .cloud-phone-top { flex-wrap: wrap; }
+}

@@ -1,0 +1,25 @@
+# Optional stable hostname (requires `cloudflared tunnel login` once).
+# Quick tunnels (default start-tunnel.ps1) use *.trycloudflare.com and change every start.
+#
+# One-time:
+#   & "C:\Program Files (x86)\cloudflared\cloudflared.exe" tunnel login
+#   & "C:\Program Files (x86)\cloudflared\cloudflared.exe" tunnel create cyclone-mcp
+#   & "C:\Program Files (x86)\cloudflared\cloudflared.exe" tunnel route dns cyclone-mcp mcp.example.com
+# Then copy this file to %USERPROFILE%\.cloudflared\config.yml (fill tunnel UUID)
+# and run: cloudflared tunnel run cyclone-mcp
+#
+# The origin MUST stay loopback. Never point the tunnel at CyclonePCRuntime
+# or at CycloneAgentMCP.exe — only at this gateway.
+
+tunnel: REPLACE_WITH_TUNNEL_UUID
+credentials-file: C:\Users\Agent\.cloudflared\REPLACE_WITH_TUNNEL_UUID.json
+
+ingress:
+  - hostname: mcp.example.com
+    service: http://127.0.0.1:8787
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 10s
+      keepAliveTimeout: 90s
+      http2Origin: false
+  - service: http_status:404

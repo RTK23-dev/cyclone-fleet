@@ -1,0 +1,16 @@
+{
+  "place": {
+    "placeId": "package:com.example.app",
+    "kind": "package",
+    "label": "app",
+    "packageName": "com.example.app"
+  },
+  "persona": "live",
+  "mapStatus": "unmapped",
+  "screens": [],
+  "edges": [],
+  "capabilities": [],
+  "confidence": 0.0,
+  "lastObservedAt": null,
+  "lastVerifiedAt": null
+}

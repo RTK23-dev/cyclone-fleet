@@ -1,0 +1,36 @@
+{
+  "schema": "cyclone-golden-page-v1",
+  "synthetic": true,
+  "pixelCapture": false,
+  "source": "synthetic-json-fixture",
+  "note": "Synthetic page-card fixture for V4 slice 5. Not a Pixel 8 capture. Physical locate remains UNVERIFIED.",
+  "goal": "Equals",
+  "expectedTarget": {
+    "elementId": "equals",
+    "label": "Equals",
+    "contentDescription": "Equals",
+    "resourceId": "com.google.android.calculator:id/eq"
+  },
+  "observation": {
+    "package": "com.google.android.calculator",
+    "activity": "com.android.calculator2.Calculator",
+    "pageKey": "calculator::main",
+    "title": "Calculator",
+    "pageText": "Calculator. Display 0. Digits 0-9. Plus. Minus. Multiply. Divide. Equals.",
+    "pageSummary": "Calculator keypad with labelled Equals control.",
+    "counts": { "raw": 64, "semantic": 16, "agent": 16 },
+    "routeHints": [{ "pageKey": "calculator::main", "confidence": 0.7, "freshness": "SYNTHETIC", "action": { "tool": "phone.click", "label": "Equals" } }],
+    "controls": [
+      { "id": "digit-7", "label": "7", "role": "button", "clickable": true, "actions": ["click"] },
+      { "id": "digit-8", "label": "8", "role": "button", "clickable": true, "actions": ["click"] },
+      { "id": "digit-9", "label": "9", "role": "button", "clickable": true, "actions": ["click"] },
+      { "id": "op-plus", "label": "Plus", "role": "button", "resourceId": "com.google.android.calculator:id/op_add", "clickable": true, "actions": ["click"] },
+      { "id": "digit-4", "label": "4", "role": "button", "clickable": true, "actions": ["click"] },
+      { "id": "digit-0", "label": "0", "role": "button", "clickable": true, "actions": ["click"] },
+      { "id": "equals", "label": "Equals", "contentDescription": "Equals", "role": "button", "resourceId": "com.google.android.calculator:id/eq", "clickable": true, "actions": ["click"] },
+      { "id": "clear", "label": "Clear", "role": "button", "clickable": true, "actions": ["click"] }
+    ],
+    "pageTextSchema": "cyclone-page-text-v1",
+    "pageSummarySchema": "cyclone-page-summary-v1"
+  }
+}

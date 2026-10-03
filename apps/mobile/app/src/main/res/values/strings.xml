@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Cyclone Mobile</string>
+    <string name="accessibility_description">Lets Cyclone inspect the visible UI and perform only permission-approved phone actions.</string>
+</resources>

@@ -1,0 +1,246 @@
+.connections-page {
+  overflow: auto;
+  padding-bottom: 42px;
+}
+
+.remote-mcp-mount,
+.local-ai-heading,
+.connections-page > .connections-grid {
+  margin-left: 32px;
+  margin-right: 32px;
+}
+
+.remote-mcp-card {
+  position: relative;
+  overflow: hidden;
+  border-color: rgba(139, 92, 246, .24);
+  background:
+    radial-gradient(circle at 86% -10%, rgba(139, 92, 246, .16), transparent 34%),
+    rgba(16, 18, 25, .92);
+}
+
+.remote-mcp-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 2px;
+  background: linear-gradient(180deg, var(--purple-bright), rgba(98, 212, 154, .45), transparent 86%);
+  opacity: .8;
+}
+
+.remote-mcp-top {
+  margin-bottom: 16px;
+}
+
+.remote-readiness-grid {
+  margin-bottom: 18px;
+}
+
+.remote-mcp-wizard {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  align-items: stretch;
+}
+
+.remote-wizard-step {
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, .022);
+  padding: 15px;
+}
+
+.remote-step-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.remote-step-number {
+  width: 25px;
+  height: 25px;
+  flex: 0 0 25px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: var(--purple-soft);
+  border: 1px solid rgba(167, 139, 250, .25);
+  color: var(--purple-bright);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.remote-step-heading {
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 720;
+  letter-spacing: -.01em;
+}
+
+.remote-step-body {
+  min-width: 0;
+}
+
+.remote-step-copy,
+.remote-step-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.55;
+}
+
+.remote-step-copy {
+  min-height: 46px;
+  margin-bottom: 12px;
+}
+
+.remote-step-note {
+  margin-top: 10px;
+}
+
+.remote-mode-row,
+.remote-provider-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-bottom: 10px;
+}
+
+.remote-primary-action {
+  width: 100%;
+  justify-content: center;
+}
+
+.remote-copy-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
+  padding: 9px 10px;
+  margin-top: 8px;
+  border-radius: 11px;
+  border: 1px solid var(--border);
+  background: rgba(0, 0, 0, .16);
+}
+
+.remote-copy-meta {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.remote-copy-label {
+  color: var(--muted);
+  font-size: 8px;
+  font-weight: 760;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.remote-copy-value {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--muted-strong);
+  font-size: 9px;
+}
+
+.remote-copy-field .button {
+  flex: 0 0 auto;
+}
+
+.remote-agent-prompt {
+  width: 100%;
+  max-height: 200px;
+  overflow: auto;
+  margin: 10px 0 0;
+  padding: 11px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(5, 6, 9, .48);
+  color: #c9c6d4;
+  font: 9px/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.remote-advanced {
+  margin-top: 14px;
+  border-top: 1px solid var(--border);
+  padding-top: 11px;
+}
+
+.remote-advanced > summary {
+  cursor: pointer;
+  list-style: none;
+  color: var(--muted-strong);
+  font-size: 10px;
+  font-weight: 680;
+}
+
+.remote-advanced > summary::-webkit-details-marker {
+  display: none;
+}
+
+.remote-advanced > summary::before {
+  content: "+";
+  display: inline-block;
+  width: 16px;
+  color: var(--purple-bright);
+}
+
+.remote-advanced[open] > summary::before {
+  content: "−";
+}
+
+.remote-advanced .setting-copy {
+  margin-top: 10px;
+}
+
+.remote-mcp-log {
+  max-height: 150px;
+  overflow: auto;
+  white-space: pre-wrap;
+}
+
+.local-ai-heading {
+  margin-top: 28px;
+  padding: 0;
+}
+
+.local-codex-card {
+  margin-top: 0;
+}
+
+@media (max-width: 1120px) {
+  .remote-mcp-wizard {
+    grid-template-columns: 1fr;
+  }
+
+  .remote-step-copy {
+    min-height: 0;
+  }
+}
+
+@media (max-width: 780px) {
+  .remote-mcp-mount,
+  .local-ai-heading,
+  .connections-page > .connections-grid {
+    margin-left: 18px;
+    margin-right: 18px;
+  }
+
+  .remote-copy-field {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .remote-copy-value {
+    white-space: normal;
+    word-break: break-all;
+  }
+}

@@ -1,0 +1,82 @@
+name: Cyclone PC Companion Release Candidate
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish_github_release:
+        description: >
+          Must stay false. This workflow never publishes a GitHub Release;
+          it only builds and uploads a candidate artifact.
+        type: boolean
+        required: false
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  build-candidate:
+    runs-on: windows-latest
+    steps:
+      - name: Refuse GitHub Release publication
+        if: ${{ inputs.publish_github_release }}
+        shell: pwsh
+        run: |
+          throw 'This workflow never publishes a GitHub Release. Leave publish_github_release=false and use the uploaded candidate artifact.'
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13.7'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: apps/pc-companion/package-lock.json
+      - name: Validate PC stack
+        shell: pwsh
+        run: |
+          python -m pip install --disable-pip-version-check -e 'apps/device-gateway[test]' -e 'tools/cyclone-agent-mcp[test]' -e tools/codex-phone-mcp
+          python -m pytest -q apps/device-gateway/tests
+          python -m pytest -q tools/cyclone-agent-mcp/tests
+          python -m unittest discover -s tools/codex-phone-mcp/tests -v
+          Push-Location apps/pc-companion
+          npm ci --no-audit --no-fund
+          npm test
+          npm run build
+          Pop-Location
+      - name: Build Python sidecars
+        shell: pwsh
+        run: ./scripts/pc-companion/build-sidecars.ps1
+      - name: Build NSIS candidate
+        shell: pwsh
+        run: |
+          Push-Location apps/pc-companion
+          npm run tauri build -- --bundles nsis
+          Pop-Location
+      - name: Stage candidate
+        shell: pwsh
+        run: |
+          $Installer = Get-ChildItem 'apps/pc-companion/src-tauri/target/release/bundle/nsis/*.exe' | Select-Object -First 1
+          if ($null -eq $Installer) { throw 'Cyclone NSIS installer was not produced.' }
+          $PcVersion = (Get-Content 'apps/pc-companion/package.json' | ConvertFrom-Json).version
+          New-Item -ItemType Directory -Force -Path dist/pc-companion | Out-Null
+          Copy-Item $Installer.FullName (Join-Path 'dist/pc-companion' "Cyclone-PC-Companion-$PcVersion-Setup.exe") -Force
+      - name: Sign when credentials are configured
+        shell: pwsh
+        env:
+          CYCLONE_WINDOWS_SIGN_PFX_BASE64: ${{ secrets.CYCLONE_WINDOWS_SIGN_PFX_BASE64 }}
+          CYCLONE_WINDOWS_SIGN_PFX_PASSWORD: ${{ secrets.CYCLONE_WINDOWS_SIGN_PFX_PASSWORD }}
+        run: ./scripts/pc-companion/sign-artifacts.ps1 -ArtifactDirectory dist/pc-companion
+      - name: Generate notices and provenance
+        shell: pwsh
+        run: |
+          $PcVersion = (Get-Content 'apps/pc-companion/package.json' | ConvertFrom-Json).version
+          python scripts/pc-companion/generate-third-party-notices.py --lock packaging/pc-companion/third-party-binaries.lock.json --output dist/pc-companion/THIRD_PARTY_NOTICES
+          python scripts/pc-companion/generate-release-metadata.py --artifact-dir dist/pc-companion --source-sha '${{ github.sha }}' --version $PcVersion --third-party-lock packaging/pc-companion/third-party-binaries.lock.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cyclone-pc-release-candidate-${{ github.sha }}
+          path: dist/pc-companion/
+          if-no-files-found: error

@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cyclone.local/schemas/cyclone.ports/1/envelope.json",
+  "title": "Out-port envelope (hub -> plugin, POST /ports/{port})",
+  "type": "object",
+  "required": [
+    "v",
+    "id",
+    "runId",
+    "port",
+    "way",
+    "seq",
+    "sentAt",
+    "sensitivity",
+    "data"
+  ],
+  "properties": {
+    "v": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "description": "Unique per message; the hub retries with the same id, so de-duplicate on it."
+    },
+    "runId": {
+      "type": "string"
+    },
+    "taskId": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "rowId": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "port": {
+      "anyOf": [
+        {
+          "enum": [
+            "run.event",
+            "screen.shot",
+            "account.fields",
+            "page.text",
+            "file.out",
+            "log.line"
+          ]
+        },
+        {
+          "type": "string",
+          "pattern": "^x\\.[a-z][a-z0-9-]{1,40}\\.[a-z][a-z0-9-]{0,40}$"
+        }
+      ]
+    },
+    "way": {
+      "const": "out"
+    },
+    "seq": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Increases per run; use it to order and de-duplicate."
+    },
+    "sentAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "app": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Android package of the app the run is in."
+    },
+    "pageKey": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Stable page id from the Sign-up Map or the page fingerprint."
+    },
+    "sensitivity": {
+      "type": "string",
+      "description": "public or personal today; read tolerantly"
+    },
+    "data": {
+      "type": "object",
+      "description": "Port payload. Ignore keys you don't know; run.event stages are an open list."
+    },
+    "artifactUrl": {
+      "type": "string",
+      "description": "screen.shot and file.out only: a one-time link, valid 120 s."
+    }
+  },
+  "additionalProperties": true
+}

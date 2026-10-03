@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cyclone.local/schemas/cyclone.ports/1/delivery.json",
+  "title": "Delivery (plugin -> hub, POST {deliverUrl})",
+  "oneOf": [
+    {
+      "title": "code.in",
+      "type": "object",
+      "required": [
+        "v",
+        "code",
+        "source",
+        "from"
+      ],
+      "properties": {
+        "v": {
+          "const": 1
+        },
+        "code": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9-]{3,12}$"
+        },
+        "source": {
+          "type": "string",
+          "description": "The label the owner registered for this phone, number or inbox."
+        },
+        "from": {
+          "type": "string",
+          "description": "The sender as the message showed it."
+        },
+        "deliveryId": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 80,
+          "description": "Makes retries safe: a repeat gets 200 with duplicate: true."
+        }
+      }
+    },
+    {
+      "title": "link.in",
+      "type": "object",
+      "required": [
+        "v",
+        "url",
+        "source"
+      ],
+      "properties": {
+        "v": {
+          "const": 1
+        },
+        "url": {
+          "type": "string",
+          "pattern": "^https://"
+        },
+        "source": {
+          "type": "string"
+        },
+        "deliveryId": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 80,
+          "description": "Makes retries safe: a repeat gets 200 with duplicate: true."
+        }
+      }
+    },
+    {
+      "title": "value.in and extension in ports",
+      "type": "object",
+      "required": [
+        "v",
+        "value"
+      ],
+      "properties": {
+        "v": {
+          "const": 1
+        },
+        "value": {
+          "description": "Any JSON, at most 64 KB."
+        },
+        "deliveryId": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 80,
+          "description": "Makes retries safe: a repeat gets 200 with duplicate: true."
+        }
+      }
+    },
+    {
+      "title": "file.in",
+      "type": "object",
+      "required": [
+        "v",
+        "name",
+        "mime",
+        "base64",
+        "sha256"
+      ],
+      "properties": {
+        "v": {
+          "const": 1
+        },
+        "name": {
+          "type": "string"
+        },
+        "mime": {
+          "type": "string"
+        },
+        "base64": {
+          "type": "string",
+          "description": "At most 20 MB decoded."
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{64}$"
+        },
+        "deliveryId": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 80,
+          "description": "Makes retries safe: a repeat gets 200 with duplicate: true."
+        }
+      }
+    }
+  ]
+}

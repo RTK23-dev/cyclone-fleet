@@ -1,0 +1,356 @@
+/* App → Scenarios and App → Versions. */
+a.tab {
+  text-decoration: none;
+  color: var(--text-muted);
+}
+
+a.tab:hover {
+  color: var(--text);
+}
+
+.knowledge-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.stats-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.knowledge-note {
+  margin: 0;
+  font-size: var(--text-sm);
+}
+
+.scenario-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: var(--space-4);
+}
+
+.scenario-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  border-left: 4px solid var(--border-strong);
+}
+
+.scenario-card.health-passing {
+  border-left-color: var(--success);
+}
+
+.scenario-card.health-warning {
+  border-left-color: var(--warning);
+}
+
+.scenario-card.health-critical {
+  border-left-color: var(--danger);
+}
+
+.scenario-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.scenario-title {
+  margin: 0;
+  font-size: var(--text-lg);
+}
+
+.scenario-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--text-sm);
+}
+
+.scenario-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.scenario-runs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.scenario-run {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  text-decoration: none;
+  color: var(--text);
+}
+
+.versions-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.versions-summary.needs-remap {
+  border-left: 4px solid var(--warning);
+}
+
+.versions-installed {
+  margin: 0;
+  font-size: var(--text-xl);
+  font-weight: 600;
+}
+
+.version-row {
+  grid-template-columns: minmax(200px, 2fr) 90px 90px 120px 140px;
+}
+
+.version-name {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 600;
+}
+
+.text-danger {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.stale-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.stale-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.stale-door {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  border-top: 1px solid var(--border);
+  font-size: var(--text-sm);
+}
+
+.stale-door:first-child {
+  border-top: none;
+}
+
+.stale-show {
+  margin-left: auto;
+  font-weight: 600;
+  color: var(--accent-text);
+}
+
+@media (max-width: 720px) {
+  .stats-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .scenario-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .version-row {
+    grid-template-columns: 1fr 60px 60px;
+  }
+
+  .version-row > :nth-child(n + 4) {
+    display: none;
+  }
+}
+
+/* App → Screens */
+.screen-row {
+  grid-template-columns: minmax(240px, 3fr) 140px 90px 90px 110px 130px;
+  width: 100%;
+  border: none;
+  background: none;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+button.screen-row:hover {
+  background: var(--surface-hover);
+}
+
+/* App → Scenarios, board view (entry on the left, then rooms by distance) */
+.scenario-board {
+  display: flex;
+  gap: var(--space-4);
+  overflow-x: auto;
+  padding-bottom: var(--space-3);
+}
+
+.scenario-column {
+  flex: 0 0 240px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.scenario-column-title {
+  margin: 0 0 var(--space-1);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.scenario-mini {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  font: inherit;
+  text-align: left;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.scenario-mini.entry {
+  border-left-color: var(--accent);
+  cursor: default;
+}
+
+.scenario-mini.health-passing {
+  border-left-color: var(--success);
+}
+
+.scenario-mini.health-warning {
+  border-left-color: var(--warning);
+}
+
+.scenario-mini.health-critical {
+  border-left-color: var(--danger);
+}
+
+button.scenario-mini:hover {
+  background: var(--surface-hover);
+}
+
+@media (max-width: 720px) {
+  .screen-row {
+    grid-template-columns: 1fr 70px 70px;
+  }
+
+  .screen-row > :nth-child(2),
+  .screen-row > :nth-child(n + 5) {
+    display: none;
+  }
+}
+
+/* Knowledge page */
+.vault-card .card-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.vault-list,
+.knowledge-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.vault-place,
+.knowledge-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  border-top: 1px solid var(--border);
+}
+
+.vault-place:first-child,
+.knowledge-row:first-child {
+  border-top: none;
+}
+
+.vault-place strong {
+  min-width: 160px;
+}
+
+.vault-slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* Chips and toggles keep their own width inside stacked cells. */
+.run-goal > .chip,
+.knowledge-body > .segmented {
+  align-self: flex-start;
+}
+
+.scenario-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-self: flex-start;
+}
+
+.knowledge-body > .persona-toggle {
+  align-self: flex-start;
+}
+
+.scenario-vault {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.scenario-vault:empty {
+  display: none;
+}
+
+.app-names > .app-facts {
+  margin-top: var(--space-2);
+}
+
+.issue-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.issue-card {
+  border-left: 4px solid var(--border);
+}
+
+.issue-card > .btn {
+  align-self: flex-start;
+}
+
+.issue-critical {
+  border-left-color: var(--danger);
+}
+
+.issue-warning {
+  border-left-color: var(--warning);
+}

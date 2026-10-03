@@ -1,0 +1,32 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "cyclone-device-gateway"
+version = "5.0.0-alpha.102.dev1"
+description = "Deterministic PC-side Android device gateway for Cyclone"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi>=0.115,<0.116",
+  "uvicorn>=0.30,<1",
+  "websockets==15.0.1",
+  "pydantic>=2.8,<3",
+  "cryptography>=44,<47",
+  # Plan 34 M3: API descriptions in YAML, read with the safe loader and no aliases (command/openapi.py).
+  "pyyaml>=6.0.2,<7",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=8,<9", "httpx>=0.27,<1", "pillow>=10,<12", "jsonschema>=4.23,<5"]
+uiautomator2 = ["uiautomator2>=3.2,<4"]
+
+[project.scripts]
+cyclone-device-gateway = "cyclone_device_gateway.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["cyclone_device_gateway"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

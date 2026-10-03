@@ -1,0 +1,83 @@
+{
+  "fixture": "cyclone-android-trust-v33-1",
+  "protocolId": "cyclone.android.trust.v3",
+  "protocolVersion": "3.3",
+  "signatureAlgorithm": "ECDSA_P256_SHA256",
+  "testOnly": true,
+  "phone": {
+    "phoneId": "XNJS-wzokyQ2-vjM0QQJgbie5K1rn-niorfnGqyyfNM",
+    "publicKey": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEaxfR8uEsQkf4vOblY6RA8ncDfYEt6zOg9KE5RdiYwpZP40Li_hp_m47n60p8D54WK84zV2sxXs7LtkBoN79R9Q"
+  },
+  "pc": {
+    "pcId": "3AzmM9vMkT2vr6S4msRNjOaD_fw_YMi98hITufK1NLo",
+    "pcLabel": "Fixture PC",
+    "publicKey": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEfPJ7GI0DT36KUjgDBLUaw8CJaeJ38hs1pgtI_EdmmXgHd1UQ247QQCk9msafdDDbun2t5jzpgimeBLedInhz0Q"
+  },
+  "negotiateRequest": {
+    "id": "fixture-negotiate",
+    "op": "trust.negotiate",
+    "args": { "protocolVersion": "3.3" }
+  },
+  "trustBeginRequest": {
+    "id": "fixture-trust-begin",
+    "op": "trust.begin",
+    "args": {
+      "protocolVersion": "3.3",
+      "pcId": "3AzmM9vMkT2vr6S4msRNjOaD_fw_YMi98hITufK1NLo",
+      "pcLabel": "Fixture PC",
+      "pcPublicKey": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEfPJ7GI0DT36KUjgDBLUaw8CJaeJ38hs1pgtI_EdmmXgHd1UQ247QQCk9msafdDDbun2t5jzpgimeBLedInhz0Q",
+      "pcNonce": "pc-nonce-fixture-00000001"
+    }
+  },
+  "trustChallenge": {
+    "challengeId": "challenge-fixture-0001",
+    "phoneNonce": "phone-nonce-fixture-000001",
+    "expiresAtMs": 1700000090000,
+    "confirmationRequired": true,
+    "transcript": "cyclone.android.trust.v3\npurpose=trust-complete\nprotocol=3.3\nchallengeId=challenge-fixture-0001\nphoneId=XNJS-wzokyQ2-vjM0QQJgbie5K1rn-niorfnGqyyfNM\npcId=3AzmM9vMkT2vr6S4msRNjOaD_fw_YMi98hITufK1NLo\npcNonce=pc-nonce-fixture-00000001\nphoneNonce=phone-nonce-fixture-000001\nexpiresAtMs=1700000090000\n",
+    "pcSignature": "MEQCIEX1E-UMqlnk_oqmS5TT6-OmU_jobLuY5zHtW-lcDOh6AiAyoXLColWJoQca1ZtTMz_xkaQlrjBLOM7ANiPnOkl9KA"
+  },
+  "trustReceipt": {
+    "trustId": "trust-fixture-0001",
+    "generation": 1,
+    "transcript": "cyclone.android.trust.v3\npurpose=trust-receipt\nprotocol=3.3\nchallengeId=challenge-fixture-0001\ntrustId=trust-fixture-0001\nphoneId=XNJS-wzokyQ2-vjM0QQJgbie5K1rn-niorfnGqyyfNM\npcId=3AzmM9vMkT2vr6S4msRNjOaD_fw_YMi98hITufK1NLo\ngeneration=1\n",
+    "phoneSignature": "MEQCIDJCZUrsvsg-_WMPTcbcZuo0ooVvj_jddmJO_NCQA7FUAiANGpvd8lDIsGt93ldMYyWasnT7oc5iMGODXyRA2ia6rA"
+  },
+  "sessionBeginRequest": {
+    "id": "fixture-session-begin",
+    "op": "trust.session.begin",
+    "args": {
+      "protocolVersion": "3.3",
+      "trustId": "trust-fixture-0001",
+      "generation": 1,
+      "pcNonce": "session-pc-nonce-fixture-0001"
+    }
+  },
+  "sessionChallenge": {
+    "challengeId": "session-challenge-fixture-0001",
+    "phoneNonce": "session-phone-nonce-fixture-01",
+    "expiresAtMs": 1700000030000,
+    "transcript": "cyclone.android.trust.v3\npurpose=session-open\nprotocol=3.3\nchallengeId=session-challenge-fixture-0001\ntrustId=trust-fixture-0001\nphoneId=XNJS-wzokyQ2-vjM0QQJgbie5K1rn-niorfnGqyyfNM\npcId=3AzmM9vMkT2vr6S4msRNjOaD_fw_YMi98hITufK1NLo\ngeneration=1\npcNonce=session-pc-nonce-fixture-0001\nphoneNonce=session-phone-nonce-fixture-01\nexpiresAtMs=1700000030000\n",
+    "pcSignature": "MEYCIQDKjNKo0hd4ThUVplpb9v0mNggx4eKnuliMd82A8flsmwIhAOIHMXzct-R_9D9pqCdtwRYXa4jje33dWDRNubLbJPBy"
+  },
+  "sessionReceipt": {
+    "sessionId": "session-fixture-0001",
+    "expiresAtMs": 1700000300000,
+    "testOnlySessionToken": "TEST_ONLY_V33_SESSION_TOKEN_000000000000000000000",
+    "tokenSha256": "e-HDjPSptf08hsPMTWmwnkuKEYNKnFuzXYUApqSbjFs",
+    "transcript": "cyclone.android.trust.v3\npurpose=session-receipt\nprotocol=3.3\nsessionId=session-fixture-0001\ntrustId=trust-fixture-0001\nphoneId=XNJS-wzokyQ2-vjM0QQJgbie5K1rn-niorfnGqyyfNM\npcId=3AzmM9vMkT2vr6S4msRNjOaD_fw_YMi98hITufK1NLo\ngeneration=1\nexpiresAtMs=1700000300000\ntokenSha256=e-HDjPSptf08hsPMTWmwnkuKEYNKnFuzXYUApqSbjFs\n",
+    "phoneSignature": "MEUCIQCsZljQp7v02-xqsic87CIrxIzqY5Sbq8kCpb0ms0so9wIgUKKzaawmp06kR-t9mx-ZY6ycTUNUtQz0jVbMVcmOGcE"
+  },
+  "errors": [
+    "PROTOCOL_MISMATCH",
+    "PHONE_CONFIRMATION_REQUIRED",
+    "TRUST_EXPIRED",
+    "TRUST_REPLAY",
+    "TRUST_REJECTED",
+    "TRUST_REVOKED",
+    "TRUST_PHONE_MISMATCH",
+    "AUTH_SIGNATURE_INVALID",
+    "AUTH_REJECTED",
+    "PHONE_LOCKED_OR_UNAVAILABLE"
+  ]
+}

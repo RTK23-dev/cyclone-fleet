@@ -1,0 +1,34 @@
+{
+  "schema": "cyclone-golden-page-v1",
+  "synthetic": true,
+  "pixelCapture": false,
+  "source": "synthetic-json-fixture",
+  "note": "Synthetic page-card fixture for V4 slice 5. Not a Pixel 8 capture. Physical locate remains UNVERIFIED.",
+  "goal": "Go to checkout",
+  "expectedTarget": {
+    "elementId": "go-to-checkout",
+    "label": "Go to checkout",
+    "resourceId": "com.example.foodshop:id/checkout_button"
+  },
+  "observation": {
+    "package": "com.example.foodshop",
+    "activity": "com.example.foodshop.cart.CartActivity",
+    "pageKey": "foodshop::cart",
+    "title": "Cart",
+    "pageText": "Food shop cart. Garden salad. Tomato soup. Subtotal 18.40. Delivery. Go to checkout. No payment captured on this page.",
+    "pageSummary": "Synthetic food-shop cart with Go to checkout. Not a live order.",
+    "counts": { "raw": 156, "semantic": 12, "agent": 9 },
+    "lastTransition": { "fromPageKey": "foodshop::menu", "toPageKey": "foodshop::cart", "via": "click", "label": "Cart" },
+    "routeHints": [{ "pageKey": "foodshop::pay-confirm", "confidence": 0.83, "freshness": "SYNTHETIC", "action": { "tool": "phone.click", "label": "Go to checkout" } }],
+    "controls": [
+      { "id": "back", "label": "Back", "role": "button", "clickable": true, "actions": ["click"] },
+      { "id": "item-salad", "label": "Garden salad", "role": "text", "clickable": false, "actions": [] },
+      { "id": "item-soup", "label": "Tomato soup", "role": "text", "clickable": false, "actions": [] },
+      { "id": "promo", "label": "Add promo code", "role": "button", "clickable": true, "actions": ["click"] },
+      { "id": "go-to-checkout", "label": "Go to checkout", "role": "button", "resourceId": "com.example.foodshop:id/checkout_button", "risk": "commerce", "clickable": true, "actions": ["click"] },
+      { "id": "continue-shopping", "label": "Continue shopping", "role": "button", "clickable": true, "actions": ["click"] }
+    ],
+    "pageTextSchema": "cyclone-page-text-v1",
+    "pageSummarySchema": "cyclone-page-summary-v1"
+  }
+}

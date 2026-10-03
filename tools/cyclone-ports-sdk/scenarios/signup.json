@@ -1,0 +1,15 @@
+{
+  "name": "signup with an SMS code",
+  "about": "A sign-up run: lifecycle events and the row's fields go to the logger, a screenshot of the birthday page, then the run waits for an SMS code. While it waits, send a text to the SMS plugin's /sms webhook (see README).",
+  "run": {"runId": "run_dev_signup", "taskId": "task_dev_1", "rowId": "row_1", "app": "com.example.app"},
+  "steps": [
+    {"emit": "run.event", "data": {"stage": "started"}},
+    {"emit": "account.fields", "data": {"fields": {"name": "Sam Example", "dateOfBirth": "1999-04-02", "email": "sam@example.com", "username": "sam.example"}}},
+    {"emit": "run.event", "data": {"stage": "page"}, "pageKey": "signup:birthday"},
+    {"emit": "screen.shot", "pageKey": "signup:birthday"},
+    {"emit": "log.line", "data": {"text": "birthday set, asking for the SMS code"}},
+    {"await": "code.in", "match": {"from": "Example", "pattern": "\\b\\d{6}\\b"}, "timeoutS": 120},
+    {"emit": "run.event", "data": {"stage": "created"}},
+    {"emit": "run.event", "data": {"stage": "done"}}
+  ]
+}

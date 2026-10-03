@@ -1,0 +1,10 @@
+{
+  "name": "scrcpy-server",
+  "version": "4.0",
+  "tag": "v4.0",
+  "upstreamCommit": "2322868e9e256eb5fce0b3d659ab2a409f29bae1",
+  "source": "https://github.com/Genymobile/scrcpy/releases/download/v4.0/scrcpy-server-v4.0",
+  "sha256": "84924bd564a1eb6089c872c7521f968058977f91f5ff02514a8c74aff3210f3a",
+  "license": "Apache-2.0",
+  "runtimeLatestFetchAllowed": false
+}

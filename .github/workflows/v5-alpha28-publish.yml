@@ -1,0 +1,215 @@
+name: Publish owner-approved V5 alpha.28 dev alpha
+on:
+  push:
+    branches: ['claude/cyclone-v5-handoff-review-9qrs40']
+    paths: ['.github/workflows/v5-alpha28-publish.yml']
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: v5-alpha28-publish
+  cancel-in-progress: false
+env:
+  SOURCE_SHA: abf07f40b23d355a81bed23c65c6db82fbb4de18
+  MOBILE_RUN: '36128039778'
+  GLASS_RUN: '36128039294'
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: abf07f40b23d355a81bed23c65c6db82fbb4de18
+          persist-credentials: false
+      - name: Download and verify existing successful builds
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          for run in "$MOBILE_RUN" "$GLASS_RUN"; do
+            gh api "repos/$GITHUB_REPOSITORY/actions/runs/$run" |
+              jq -e --arg sha "$SOURCE_SHA" --arg repo "$GITHUB_REPOSITORY" '.head_sha == $sha and .head_repository.full_name == $repo and .event == "push" and .conclusion == "success" and .head_branch == "release/cyclone-mobile-v5.0.0-alpha.28.dev1"' >/dev/null
+          done
+          gh run download "$MOBILE_RUN" --repo "$GITHUB_REPOSITORY" --name Cyclone-Android-5.0.0-alpha.28.dev1 --dir candidate
+          gh run download "$GLASS_RUN" --repo "$GITHUB_REPOSITORY" --name "cyclone-pc-companion-$SOURCE_SHA" --dir glass-download
+          python - <<'PY'
+          from pathlib import Path
+          import shutil
+          root = Path('glass-download')
+          print('Glass artifact files:', [str(p.relative_to(root)) for p in root.rglob('*') if p.is_file()])
+          Path('glass').mkdir()
+          for name in ['Cyclone-PC-Companion-1.6.0-alpha.28-Setup.exe', 'release-provenance.json', 'installer-acceptance.json', 'source-sha.txt', 'THIRD_PARTY_NOTICES', 'SHA256SUMS.txt']:
+              matches = list(root.rglob(name))
+              if len(matches) != 1:
+                  raise SystemExit(f'Expected exactly one {name}, got {len(matches)}')
+              shutil.copyfile(matches[0], Path('glass') / name)
+          PY
+          test "$(tr -d '\r\n' < candidate/source-sha.txt)" = "$SOURCE_SHA"
+          test "$(tr -d '\r\n' < candidate/run-id.txt)" = "$MOBILE_RUN"
+          test "$(tr -d '\r\n' < candidate/signing-state.txt)" = UNSIGNED_VERIFIED_CANDIDATE
+          (cd candidate && sha256sum --check Cyclone-5.0.0-alpha.28.dev1.apk.sha256)
+          (cd glass-download && sha256sum --check SHA256SUMS.txt)
+          python - <<'PY'
+          import json, os, hashlib
+          from pathlib import Path
+          root = Path('glass-download')
+          provenance = json.loads((root / 'release-provenance.json').read_text(encoding='utf-8-sig'))
+          assert provenance['source_sha'] == os.environ['SOURCE_SHA']
+          assert provenance['version'] == '1.6.0-alpha.28'
+          assert (root / 'source-sha.txt').read_text().strip() == os.environ['SOURCE_SHA']
+          artifacts = provenance['artifacts']
+          assert any(a['name'] == 'Cyclone-PC-Companion-1.6.0-alpha.28-Setup.exe' for a in artifacts)
+          for artifact in artifacts:
+              assert Path(artifact['name']).name == artifact['name']
+              payload = root / artifact['name']
+              assert payload.stat().st_size == artifact['size_bytes']
+              assert hashlib.sha256(payload.read_bytes()).hexdigest() == artifact['sha256']
+          print('All Glass installer and bundled sidecar hashes verified')
+          PY
+      - name: Set up Android signing tools
+        uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3
+        with:
+          # Google's legacy aggregate `tools` package is retired. The publisher only needs adb/sdkmanager
+          # bootstrap here; the exact signing build-tools are installed in the following step.
+          packages: platform-tools
+
+      - name: Install Android build tools
+        shell: bash
+        run: sdkmanager --install 'build-tools;35.0.0'
+
+      - name: Recover update-compatible personal-development signer
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          legacy_ref='release/cyclone-mobile-v3.9.0'
+          gh api "repos/$GITHUB_REPOSITORY/contents/apps/mobile/release.keystore.b64?ref=$legacy_ref" --jq .content \
+            | tr -d '\n' | base64 --decode > "$RUNNER_TEMP/release.keystore.b64"
+          base64 --decode "$RUNNER_TEMP/release.keystore.b64" > "$RUNNER_TEMP/release.keystore"
+          gh api "repos/$GITHUB_REPOSITORY/contents/apps/mobile/app/build.gradle.kts?ref=$legacy_ref" --jq .content \
+            | tr -d '\n' | base64 --decode > "$RUNNER_TEMP/legacy.gradle.kts"
+          python3 - "$RUNNER_TEMP/legacy.gradle.kts" "$RUNNER_TEMP/legacy-signing.env" <<'PY'
+          import re, shlex, sys
+          text = open(sys.argv[1], encoding='utf-8').read()
+          match = re.search(r'create\("ciRelease"\)\s*\{(?P<body>.*?)\n\s*\}', text, re.S)
+          if not match:
+              raise SystemExit('legacy ciRelease signing block not found')
+          body = match.group('body')
+          def value(name):
+              found = re.search(rf'{name}\s*=\s*"([^"]+)"', body)
+              if not found:
+                  raise SystemExit(f'legacy {name} not found')
+              return found.group(1)
+          with open(sys.argv[2], 'w', encoding='utf-8') as out:
+              out.write('STORE_PASSWORD=' + shlex.quote(value('storePassword')) + '\n')
+              out.write('KEY_ALIAS=' + shlex.quote(value('keyAlias')) + '\n')
+              out.write('KEY_PASSWORD=' + shlex.quote(value('keyPassword')) + '\n')
+          PY
+          chmod 600 "$RUNNER_TEMP/release.keystore" "$RUNNER_TEMP/legacy-signing.env"
+
+      - name: Sign and verify update continuity
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/legacy-signing.env"
+          export STORE_PASSWORD KEY_ALIAS KEY_PASSWORD
+          echo "::add-mask::$STORE_PASSWORD"
+          echo "::add-mask::$KEY_ALIAS"
+          echo "::add-mask::$KEY_PASSWORD"
+          mkdir -p signed "$RUNNER_TEMP/previous"
+          input='candidate/Cyclone-5.0.0-alpha.28.dev1.apk'
+          output='signed/Cyclone-5.0.0-alpha.28.dev1.apk'
+          apksigner="$ANDROID_SDK_ROOT/build-tools/35.0.0/apksigner"
+          aapt="$ANDROID_SDK_ROOT/build-tools/35.0.0/aapt"
+          "$apksigner" sign \
+            --ks "$RUNNER_TEMP/release.keystore" \
+            --ks-key-alias "$KEY_ALIAS" \
+            --ks-pass env:STORE_PASSWORD \
+            --key-pass env:KEY_PASSWORD \
+            --out "$output" \
+            "$input"
+          "$apksigner" verify --min-sdk-version 33 --verbose --print-certs "$output" | tee signed/signing-info.txt
+          "$aapt" dump badging "$output" | tee "$RUNNER_TEMP/badging.txt"
+          grep -q "package: name='com.cyclone.mobile'" "$RUNNER_TEMP/badging.txt"
+          grep -q "versionCode='170'" "$RUNNER_TEMP/badging.txt"
+          grep -q "versionName='5.0.0-alpha.28.dev1'" "$RUNNER_TEMP/badging.txt"
+          if grep -Eq 'testOnly[= ]true' "$RUNNER_TEMP/badging.txt"; then
+            echo 'ERROR: signed release APK is testOnly.' >&2
+            exit 1
+          fi
+
+          gh release download v4.8.0 --repo "$GITHUB_REPOSITORY" \
+            --pattern 'Cyclone-4.8.0.apk' --dir "$RUNNER_TEMP/previous"
+          previous_cert="$("$apksigner" verify --min-sdk-version 34 --print-certs "$RUNNER_TEMP/previous/Cyclone-4.8.0.apk" \
+            | sed -n 's/^Signer #1 certificate SHA-256 digest: //p' | head -1)"
+          current_cert="$("$apksigner" verify --min-sdk-version 34 --print-certs "$output" \
+            | sed -n 's/^Signer #1 certificate SHA-256 digest: //p' | head -1)"
+          test -n "$previous_cert"
+          test "$current_cert" = "$previous_cert"
+
+          (cd signed && sha256sum Cyclone-5.0.0-alpha.28.dev1.apk > Cyclone-5.0.0-alpha.28.dev1.apk.sha256)
+          printf '%s\n' 'Signed with the historical 4.8.0-compatible development key. Signature equality with 4.8.0 was verified. This signer is update-compatible but not production-secure.' > signed/update-compatibility.txt
+          cp candidate/source-sha.txt candidate/run-id.txt candidate/mobile-metadata.json signed/
+          printf '%s\n' 'SIGNED_LEGACY_UPDATE_COMPATIBILITY_KEY_FULL_RELEASE' > signed/signing-state.txt
+
+      - name: Destroy recovered signing material
+        if: always()
+        shell: bash
+        run: |
+          rm -rf "$RUNNER_TEMP/release.keystore" \
+            "$RUNNER_TEMP/release.keystore.b64" \
+            "$RUNNER_TEMP/legacy.gradle.kts" \
+            "$RUNNER_TEMP/legacy-signing.env" \
+            "$RUNNER_TEMP/previous" \
+            "$RUNNER_TEMP/badging.txt"
+
+
+      - name: Publish paired developer prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os, hashlib
+          from pathlib import Path
+          files = [Path('signed/Cyclone-5.0.0-alpha.28.dev1.apk'), Path('glass/Cyclone-PC-Companion-1.6.0-alpha.28-Setup.exe')]
+          manifest = {
+              'source_sha': os.environ['SOURCE_SHA'],
+              'mobile_ci_run_id': int(os.environ['MOBILE_RUN']),
+              'glass_ci_run_id': int(os.environ['GLASS_RUN']),
+              'physical_acceptance': 'NOT_TESTED_USER_WAIVED',
+              'signing': 'LEGACY_UPDATE_COMPATIBLE_DEV_ONLY',
+              'sha256': {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in files},
+          }
+          Path('release-manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
+          Path('RELEASE_NOTES.md').write_text(
+              '# Cyclone V5 — developer alpha 28: one owner card + Cyclone Glass 1.0.0-alpha.14\n\n'
+              'Download **Cyclone-5.0.0-alpha.28.dev1.apk** for Android and '
+              '**Cyclone-PC-Companion-1.6.0-alpha.28-Setup.exe** for Windows.\n\n'
+              '- **"I\'m done" always continues.** After taking over, pressing I\'m done on the overlay, the notification or in '
+              'Ask sometimes did nothing and the mission waited forever. It now always hands the phone back and Cyclone '
+              'continues, whatever it was waiting for.\n'
+              '- **Fill in or Take over.** When a form needs your details (first and last name, birth date, address, phone '
+              'number), Cyclone asks for all of them on one quick card over any app, with two buttons: **Fill in** (type '
+              'them on the card, Cyclone puts them in the form) and **Take over** (do it yourself, then I\'m done). Write '
+              'dates the way you like ("12 march 1990"); Cyclone puts them in the form\'s format. Tick "Remember for next time" '
+              'and the next sign-up needs no card. Passwords and codes still only go through the Secrets Card.\n'
+              '- Questions from Cyclone get the same card, also with Take over.\n'
+              '- Includes the alpha.27 dev2 Windows installer fix.\n\n'
+              'Test list: Cyclone V5 plan/16-cyclone-mind.md (checks 20-23 are new).\n\n'
+              'Both exact-source CI builds passed. Physical phone and end-to-end acceptance are **not yet verified**. '
+              'It is a developer alpha, not a production-stable release.\n\n'
+              'Android: open the APK and install as an update. Its signing certificate was verified to match Cyclone 4.8.0. '
+              'Back up important app data first. Do not uninstall the existing app to resolve an update error.\n\n'
+              'Windows: run Cyclone-PC-Companion-1.6.0-alpha.28-Setup.exe (Cyclone One with Glass inside). '
+              'Windows may display a SmartScreen warning because Authenticode is absent.\n\n'
+              '**Development signing warning:** this build reuses the historical development signing key, as earlier V5 developer alphas did. '
+              'That key is exposed in repository history and is not production-secure. Install only artifacts downloaded from this release.\n'
+          )
+          PY
+          gh release create v5.0.0-alpha.28.dev1 signed/* glass/Cyclone-PC-Companion-1.6.0-alpha.28-Setup.exe glass/SHA256SUMS.txt glass/release-provenance.json glass/installer-acceptance.json glass/THIRD_PARTY_NOTICES release-manifest.json \
+            --repo "$GITHUB_REPOSITORY" --target "$SOURCE_SHA" --title "Cyclone V5 alpha.28 — one owner card: Fill in or Take over (developer alpha)" --prerelease --draft --notes-file RELEASE_NOTES.md
+          gh release edit v5.0.0-alpha.28.dev1 --repo "$GITHUB_REPOSITORY" --draft=false --prerelease

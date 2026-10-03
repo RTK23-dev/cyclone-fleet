@@ -1,0 +1,165 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cyclone.local/protocol/cyclone-atlas-v1.schema.json",
+  "title": "Cyclone Atlas v1",
+  "description": "Phone-owned read contract. Atlas is a sketch, never an executor or secret store.",
+  "oneOf": [
+    { "$ref": "#/$defs/placeCatalog" },
+    { "$ref": "#/$defs/atlasDocument" }
+  ],
+  "$defs": {
+    "persona": { "enum": ["live", "mapping"] },
+    "mapStatus": { "enum": ["unmapped", "partial", "mapped", "stale", "blocked"] },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "timestamp": {
+      "oneOf": [
+        { "type": "string", "format": "date-time" },
+        { "type": "null" }
+      ]
+    },
+    "placeId": {
+      "type": "string",
+      "minLength": 9,
+      "maxLength": 512,
+      "pattern": "^(package:[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*)+|chrome:https?://[^\\s/]+(?::[0-9]{1,5})?)$"
+    },
+    "place": {
+      "type": "object",
+      "required": ["placeId", "kind", "label"],
+      "properties": {
+        "placeId": { "$ref": "#/$defs/placeId" },
+        "kind": { "enum": ["package", "chrome-origin"] },
+        "label": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "packageName": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 240,
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*)+$"
+        },
+        "origin": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 480,
+          "pattern": "^https?://[^\\s/]+(?::[0-9]{1,5})?$"
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "kind": { "const": "package" } }, "required": ["kind"] },
+          "then": { "required": ["packageName"], "properties": { "placeId": { "pattern": "^package:" } } }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "chrome-origin" } }, "required": ["kind"] },
+          "then": { "required": ["origin"], "properties": { "placeId": { "pattern": "^chrome:" } } }
+        }
+      ],
+      "additionalProperties": false
+    },
+    "risk": {
+      "type": "object",
+      "required": ["danger", "classes"],
+      "properties": {
+        "danger": { "type": "boolean" },
+        "classes": {
+          "type": "array",
+          "maxItems": 16,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1, "maxLength": 64, "pattern": "^[a-z][a-z0-9._-]*$" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "factSlot": {
+      "type": "object",
+      "required": ["name", "factType", "required"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^(?!.*(?:password|passcode|passwd|pin|otp|token|secret|api_key|authorization|cookie|cvv|credential|typed_text|typed_value))[a-z][a-z0-9._-]*$"
+        },
+        "factType": { "enum": ["text", "boolean", "number", "timestamp", "identifier"] },
+        "required": { "type": "boolean" },
+        "description": { "type": "string", "maxLength": 160 }
+      },
+      "additionalProperties": false
+    },
+    "layout": {
+      "type": "object",
+      "required": ["x", "y"],
+      "properties": { "x": { "type": "number" }, "y": { "type": "number" } },
+      "additionalProperties": false
+    },
+    "screen": {
+      "type": "object",
+      "required": ["screenId", "purpose", "factSlots", "risk", "confidence", "lastObservedAt", "lastVerifiedAt", "layout"],
+      "properties": {
+        "screenId": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "label": { "type": "string", "maxLength": 120 },
+        "purpose": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "factSlots": { "type": "array", "maxItems": 64, "items": { "$ref": "#/$defs/factSlot" } },
+        "risk": { "$ref": "#/$defs/risk" },
+        "confidence": { "$ref": "#/$defs/confidence" },
+        "lastObservedAt": { "$ref": "#/$defs/timestamp" },
+        "lastVerifiedAt": { "$ref": "#/$defs/timestamp" },
+        "layout": { "$ref": "#/$defs/layout" }
+      },
+      "additionalProperties": false
+    },
+    "edge": {
+      "type": "object",
+      "required": ["edgeId", "fromScreenId", "toScreenId", "actionHint", "risk", "confidence", "lastVerifiedAt"],
+      "properties": {
+        "edgeId": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "fromScreenId": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "toScreenId": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "actionHint": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "risk": { "$ref": "#/$defs/risk" },
+        "confidence": { "$ref": "#/$defs/confidence" },
+        "lastVerifiedAt": { "$ref": "#/$defs/timestamp" }
+      },
+      "additionalProperties": false
+    },
+    "placeSummary": {
+      "type": "object",
+      "required": ["place", "persona", "mapStatus", "confidence", "lastObservedAt", "lastVerifiedAt"],
+      "properties": {
+        "place": { "$ref": "#/$defs/place" },
+        "persona": { "$ref": "#/$defs/persona" },
+        "mapStatus": { "$ref": "#/$defs/mapStatus" },
+        "confidence": { "$ref": "#/$defs/confidence" },
+        "lastObservedAt": { "$ref": "#/$defs/timestamp" },
+        "lastVerifiedAt": { "$ref": "#/$defs/timestamp" }
+      },
+      "additionalProperties": false
+    },
+    "placeCatalog": {
+      "type": "object",
+      "required": ["places"],
+      "properties": { "places": { "type": "array", "items": { "$ref": "#/$defs/placeSummary" } } },
+      "additionalProperties": false
+    },
+    "atlasDocument": {
+      "type": "object",
+      "required": ["place", "persona", "mapStatus", "screens", "edges", "capabilities", "confidence", "lastObservedAt", "lastVerifiedAt"],
+      "properties": {
+        "place": { "$ref": "#/$defs/place" },
+        "persona": { "$ref": "#/$defs/persona" },
+        "mapStatus": { "$ref": "#/$defs/mapStatus" },
+        "screens": { "type": "array", "items": { "$ref": "#/$defs/screen" } },
+        "edges": { "type": "array", "items": { "$ref": "#/$defs/edge" } },
+        "capabilities": {
+          "type": "array",
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1, "maxLength": 80, "pattern": "^[A-Za-z][A-Za-z0-9._-]*$" }
+        },
+        "confidence": { "$ref": "#/$defs/confidence" },
+        "lastObservedAt": { "$ref": "#/$defs/timestamp" },
+        "lastVerifiedAt": { "$ref": "#/$defs/timestamp" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

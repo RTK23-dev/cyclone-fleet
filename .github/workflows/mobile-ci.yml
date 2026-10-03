@@ -1,0 +1,50 @@
+name: Cyclone Mobile CI
+
+on:
+  push:
+    branches: [main, 'claude/cyclone-v5-handoff-review-9qrs40', 'fix/4.4.8-apple-ui-stability', 'codex/cyclone-4.4.4-observations', 'codex/cyclone-4.4.2-one-1.5.5-camera', 'codex/cyclone-4.4.1-visual', 'codex/cyclone-4.4-execution', 'codex/cyclone-4.3.7-openrouter', 'codex/4.3.6-stability', 'codex/4.3.4-agent-reliability', 'agent/434-task-glass', 'agent/433-task-status-integration', 'agent/432-grounded-harness-backend', 'agent/430-profile-rescue', 'agent/427-structural-reliability', 'codex/cyclone-4.2.4-combined', 'codex/live-phone', 'codex/cyclone-4.0.4-simple-setup', 'codex/cyclone-4.0.1-bg-task-glass', 'release/cyclone-mobile-v*', 'agent/397-v4-live-background-completion', 'agent/398-runtime-and-task-ui', 'agent/399-composer-and-model-compat', 'agent/3912-background-intelligence']
+    paths:
+      - 'apps/mobile/**'
+      - 'apps/device-gateway/**'
+      - 'tools/codex-phone-mcp/**'
+      - 'tools/cyclone-agent-mcp/**'
+      - 'scripts/ci/**'
+      - 'scripts/phone-gateway/**'
+      - 'release/version.toml'
+      - '.github/workflows/_mobile-build.yml'
+      - '.github/workflows/mobile-ci.yml'
+      - '.github/workflows/mobile-dev-publish-v395.yml'
+      - '.github/workflows/mobile-dev-publish-v396.yml'
+      - '.github/workflows/mobile-dev-publish-v397.yml'
+      - '.github/workflows/mobile-publish-v398.yml'
+      - '.github/workflows/mobile-publish-v3910.yml'
+  pull_request:
+    paths:
+      - 'apps/mobile/**'
+      - 'apps/device-gateway/**'
+      - 'tools/codex-phone-mcp/**'
+      - 'tools/cyclone-agent-mcp/**'
+      - 'scripts/ci/**'
+      - 'scripts/phone-gateway/**'
+      - 'release/version.toml'
+      - '.github/workflows/_mobile-build.yml'
+      - '.github/workflows/mobile-ci.yml'
+      - '.github/workflows/mobile-dev-publish-v395.yml'
+      - '.github/workflows/mobile-dev-publish-v396.yml'
+      - '.github/workflows/mobile-dev-publish-v397.yml'
+      - '.github/workflows/mobile-publish-v398.yml'
+      - '.github/workflows/mobile-publish-v3910.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mobile-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  mobile:
+    uses: ./.github/workflows/_mobile-build.yml
+    permissions:
+      contents: read

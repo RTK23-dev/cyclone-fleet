@@ -1,0 +1,41 @@
+{
+  "schema": "cyclone-golden-page-v1",
+  "synthetic": true,
+  "pixelCapture": false,
+  "source": "synthetic-json-fixture",
+  "note": "Synthetic page-card fixture for V4 slice 5. Not a Pixel 8 capture. Physical locate remains UNVERIFIED.",
+  "goal": "Network & internet",
+  "expectedTarget": {
+    "elementId": "network-internet",
+    "label": "Network & internet",
+    "resourceId": "android:id/title"
+  },
+  "observation": {
+    "package": "com.android.settings",
+    "activity": "com.android.settings.homepage.SettingsHomepageActivity",
+    "pageKey": "settings::root",
+    "title": "Settings",
+    "pageText": "Settings. Search settings. Network & internet. Connected devices. Apps. Notifications. Battery. Storage. Sound & vibration. Display.",
+    "pageSummary": "Android Settings home with network, apps, and device rows.",
+    "counts": { "raw": 214, "semantic": 18, "agent": 12 },
+    "lastTransition": { "fromPageKey": "pixel_launcher::home", "toPageKey": "settings::root", "via": "click", "label": "Settings" },
+    "routeHints": [
+      { "pageKey": "settings::network", "confidence": 0.9, "freshness": "SYNTHETIC", "action": { "tool": "phone.click", "label": "Network & internet" } },
+      { "pageKey": "settings::apps", "confidence": 0.84, "freshness": "SYNTHETIC", "action": { "tool": "phone.click", "label": "Apps" } }
+    ],
+    "nextCursor": "controls:offset=12",
+    "controls": [
+      { "id": "search-settings", "label": "Search settings", "role": "edittext", "resourceId": "com.android.settings:id/search_bar", "editable": true, "clickable": true, "actions": ["click"] },
+      { "id": "connected-devices", "label": "Connected devices", "role": "button", "resourceId": "android:id/title", "clickable": true, "actions": ["click"] },
+      { "id": "network-internet", "label": "Network & internet", "role": "button", "resourceId": "android:id/title", "contentDescription": "Network and internet", "clickable": true, "actions": ["click"] },
+      { "id": "apps-row", "label": "Apps", "role": "button", "resourceId": "android:id/title", "clickable": true, "actions": ["click"] },
+      { "id": "notifications", "label": "Notifications", "role": "button", "clickable": true, "actions": ["click"] },
+      { "id": "battery", "label": "Battery", "role": "button", "clickable": true, "actions": ["click"] },
+      { "id": "storage", "label": "Storage", "role": "button", "clickable": true, "actions": ["click"] },
+      { "id": "sound", "label": "Sound & vibration", "role": "button", "clickable": true, "actions": ["click"] },
+      { "id": "display", "label": "Display", "role": "button", "clickable": true, "actions": ["click"] }
+    ],
+    "pageTextSchema": "cyclone-page-text-v1",
+    "pageSummarySchema": "cyclone-page-summary-v1"
+  }
+}

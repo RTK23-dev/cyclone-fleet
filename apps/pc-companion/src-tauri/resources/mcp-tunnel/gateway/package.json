@@ -1,0 +1,13 @@
+{
+  "name": "cyclone-mcp-auth-gateway",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Bearer-authenticated Streamable HTTP front for local CycloneAgentMCP stdio. Do not expose without a token.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

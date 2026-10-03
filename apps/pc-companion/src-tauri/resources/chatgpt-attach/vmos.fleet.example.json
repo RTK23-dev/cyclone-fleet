@@ -1,0 +1,25 @@
+{
+  "controlApiBase": "",
+  "controlApiKey": "",
+  "defaultGoal": "Observe each assigned phone and wait for instructions.",
+  "pads": [
+    {
+      "label": "pad-1",
+      "sshHost": "YOUR_VMOS_SSH_HOST",
+      "sshPort": 1824,
+      "sshUser": "s",
+      "connectKey": "PASTE_CONNECT_KEY_HERE",
+      "localAdbPort": 63670,
+      "remoteAdbSpec": "localhost:1"
+    },
+    {
+      "label": "pad-2",
+      "sshHost": "YOUR_VMOS_SSH_HOST_2",
+      "sshPort": 1824,
+      "sshUser": "s",
+      "connectKey": "PASTE_CONNECT_KEY_HERE",
+      "localAdbPort": 63671,
+      "remoteAdbSpec": "localhost:1"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "schema": "cyclone-golden-page-v1",
+  "synthetic": true,
+  "pixelCapture": false,
+  "source": "synthetic-json-fixture",
+  "note": "Synthetic page-card fixture for V4 slice 5. Not a Pixel 8 capture. Physical locate remains UNVERIFIED.",
+  "goal": "Downloads",
+  "expectedTarget": {
+    "elementId": "downloads",
+    "label": "Downloads",
+    "resourceId": "com.google.android.documentsui:id/directory_downloads"
+  },
+  "observation": {
+    "package": "com.google.android.documentsui",
+    "activity": "com.android.documentsui.files.FilesActivity",
+    "pageKey": "files::root",
+    "title": "Files",
+    "pageText": "Files. Categories. Images. Videos. Audio. Documents. Downloads. Nearby.",
+    "pageSummary": "Files app category list with Downloads.",
+    "counts": { "raw": 92, "semantic": 10, "agent": 8 },
+    "lastTransition": { "fromPageKey": "pixel_launcher::home", "toPageKey": "files::root", "via": "click", "label": "Files" },
+    "routeHints": [{ "pageKey": "files::downloads", "confidence": 0.89, "freshness": "SYNTHETIC", "action": { "tool": "phone.click", "label": "Downloads" } }],
+    "controls": [
+      { "id": "images", "label": "Images", "role": "button", "clickable": true, "actions": ["click"] },
+      { "id": "videos", "label": "Videos", "role": "button", "clickable": true, "actions": ["click"] },
+      { "id": "audio", "label": "Audio", "role": "button", "clickable": true, "actions": ["click"] },
+      { "id": "documents", "label": "Documents", "role": "button", "clickable": true, "actions": ["click"] },
+      { "id": "downloads", "label": "Downloads", "role": "button", "resourceId": "com.google.android.documentsui:id/directory_downloads", "clickable": true, "actions": ["click"] },
+      { "id": "nearby", "label": "Nearby", "role": "button", "clickable": true, "actions": ["click"] },
+      { "id": "browse", "label": "Browse", "role": "button", "clickable": true, "actions": ["click"] }
+    ],
+    "pageTextSchema": "cyclone-page-text-v1",
+    "pageSummarySchema": "cyclone-page-summary-v1"
+  }
+}

@@ -1,0 +1,7 @@
+# Generated equivalent: CycloneAgentMCP.exe connect codex --dry-run
+# Copy this block to the user's Codex config and replace the command with the installed absolute path.
+# No gateway token belongs in this TOML.
+[mcp_servers.cyclone-phone]
+command = "C:\\Program Files\\Cyclone\\CycloneAgentMCP.exe"
+args = ["serve"]
+enabled = true

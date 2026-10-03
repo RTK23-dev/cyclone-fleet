@@ -1,0 +1,122 @@
+.chatgpt-attach-page { display: grid; gap: 16px; }
+.chatgpt-attach-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+}
+.chatgpt-hero-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.chatgpt-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.chatgpt-summary-chip {
+  padding: 14px 16px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--c-radius);
+  background: var(--c-surface);
+  display: grid;
+  gap: 4px;
+}
+.chatgpt-summary-chip.ready { border-color: rgba(85, 217, 138, .22); }
+.chatgpt-summary-label {
+  color: var(--c-subtle);
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.chatgpt-summary-value { color: var(--c-text); font-size: 13px; font-weight: 650; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chatgpt-message { min-height: 22px; color: var(--c-muted); font-size: 12px; line-height: 1.5; }
+.chatgpt-message.ok { color: var(--c-green); }
+.chatgpt-message.warn { color: var(--c-amber); }
+.chatgpt-pad-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+}
+.chatgpt-pad-card {
+  min-height: 168px;
+  padding: 16px;
+  display: grid;
+  gap: 12px;
+  align-content: start;
+  border: 1px solid var(--c-border);
+  border-radius: var(--c-radius);
+  background: var(--c-surface);
+}
+.chatgpt-pad-card.ready { border-color: rgba(85, 217, 138, .22); }
+.chatgpt-pad-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.chatgpt-pad-title { margin: 0; font-size: 15px; letter-spacing: -.02em; }
+.chatgpt-pad-facts { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.chatgpt-pad-id { color: var(--c-subtle); font-size: 10px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; overflow: hidden; text-overflow: ellipsis; }
+.chatgpt-pad-error { color: var(--c-amber); font-size: 11px; line-height: 1.4; }
+.chatgpt-empty { min-height: 280px; padding: 32px; border: 1px solid var(--c-border); border-radius: var(--c-radius); background: var(--c-surface); }
+.chatgpt-config-body { display: grid; gap: 10px; }
+.chatgpt-field { display: grid; gap: 6px; }
+.chatgpt-field-label { color: var(--c-subtle); font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+.chatgpt-field-input {
+  min-height: 38px;
+  padding: 0 12px;
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  background: #0f1013;
+  color: var(--c-text);
+  font: inherit;
+  font-size: 12px;
+}
+.chatgpt-pad-editor { display: grid; gap: 10px; }
+.chatgpt-pad-form {
+  padding: 14px;
+  display: grid;
+  gap: 10px;
+  border: 1px solid var(--c-border-soft);
+  border-radius: 12px;
+  background: #0f1013;
+}
+.chatgpt-pad-form-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.chatgpt-pad-form-title { font-size: 12px; font-weight: 700; }
+.chatgpt-pad-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.chatgpt-hint-list { margin: 0; padding: 0 0 0 18px; color: var(--c-muted); font-size: 12px; line-height: 1.55; display: grid; gap: 6px; }
+.chatgpt-checklist {
+  display: grid;
+  gap: 6px;
+  padding: 12px 14px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--c-radius);
+  background: var(--c-surface);
+}
+.chatgpt-checklist-title {
+  margin: 0 0 4px;
+  color: var(--c-subtle);
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.chatgpt-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--c-muted);
+  font-size: 12px;
+}
+.chatgpt-check.ok { color: var(--c-green); }
+.chatgpt-check-mark { width: 22px; font-size: 10px; font-weight: 750; letter-spacing: .04em; }
+.chatgpt-share-url {
+  color: var(--c-muted);
+  font-size: 11px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  word-break: break-all;
+}
+.chatgpt-share-url.ready { color: var(--c-text); }
+
+@media (max-width: 900px) {
+  .chatgpt-attach-header { align-items: flex-start; flex-direction: column; }
+  .chatgpt-summary, .chatgpt-pad-form-grid { grid-template-columns: 1fr; }
+}

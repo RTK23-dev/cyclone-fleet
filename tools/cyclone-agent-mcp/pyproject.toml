@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cyclone-agent-mcp"
+version = "5.0.0-alpha.102.dev1"
+description = "Generic MCP interface for Cyclone PC Device Gateway"
+requires-python = ">=3.11"
+authors = [{name = "Cyclone"}]
+dependencies = ["mcp==2.0.0"]
+
+[project.optional-dependencies]
+test = ["pytest>=8,<10"]
+
+[project.scripts]
+cyclone-agent-mcp = "cyclone_agent_mcp.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["cyclone_agent_mcp*"]

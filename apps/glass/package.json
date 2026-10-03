@@ -1,0 +1,18 @@
+{
+  "name": "@cyclone/glass",
+  "private": true,
+  "version": "1.0.0-alpha.57",
+  "description": "Cyclone Glass: local browser dashboard for the Cyclone Mobile engine",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -p tsconfig.json && vite build",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "node -e \"require('node:fs').rmSync('.test-dist', { recursive: true, force: true })\" && tsc -p tsconfig.test.json && node --test"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.4",
+    "typescript": "^5.8.3",
+    "vite": "^7.1.3"
+  }
+}

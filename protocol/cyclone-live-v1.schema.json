@@ -1,0 +1,242 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cyclone.local/protocol/cyclone-live-v1.schema.json",
+  "title": "Cyclone Interaction Protocol v1 request envelope",
+  "oneOf": [
+    {"$ref": "#/$defs/devicesRequest"},
+    {"$ref": "#/$defs/seeRequest"},
+    {"$ref": "#/$defs/findRequest"},
+    {"$ref": "#/$defs/inspectRequest"},
+    {"$ref": "#/$defs/actRequest"},
+    {"$ref": "#/$defs/sessionRequest"}
+  ],
+  "$defs": {
+    "device": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 240,
+      "default": "auto"
+    },
+    "point": {
+      "type": "object",
+      "required": ["x", "y"],
+      "properties": {
+        "x": {"type": "number", "minimum": 0, "maximum": 1},
+        "y": {"type": "number", "minimum": 0, "maximum": 1},
+        "space": {"const": "display_norm", "default": "display_norm"}
+      },
+      "additionalProperties": false
+    },    "elementTarget": {
+      "type": "object",
+      "required": ["element_id"],
+      "properties": {
+        "element_id": {"type": "string", "minLength": 1, "maxLength": 240}
+      },
+      "additionalProperties": false
+    },
+    "target": {
+      "oneOf": [
+        {"$ref": "#/$defs/elementTarget"},
+        {
+          "type": "object",
+          "required": ["point"],
+          "properties": {"point": {"$ref": "#/$defs/point"}},
+          "additionalProperties": false
+        }
+      ]
+    },
+    "tapAction": {
+      "type": "object",
+      "required": ["kind", "target"],
+      "properties": {
+        "kind": {"const": "tap"},
+        "target": {"$ref": "#/$defs/target"}
+      },
+      "additionalProperties": false
+    },
+    "longPressAction": {      "type": "object",
+      "required": ["kind", "target"],
+      "properties": {
+        "kind": {"const": "long_press"},
+        "target": {"$ref": "#/$defs/target"},
+        "duration_ms": {"type": "integer", "minimum": 100, "maximum": 3000}
+      },
+      "additionalProperties": false
+    },
+    "typeAction": {
+      "type": "object",
+      "required": ["kind", "target", "text"],
+      "properties": {
+        "kind": {"const": "type"},
+        "target": {"$ref": "#/$defs/elementTarget"},
+        "text": {"type": "string", "minLength": 1, "maxLength": 4000}
+      },
+      "additionalProperties": false
+    },
+    "clearAction": {
+      "type": "object",
+      "required": ["kind", "target"],
+      "properties": {
+        "kind": {"const": "clear"},
+        "target": {"$ref": "#/$defs/elementTarget"}
+      },
+      "additionalProperties": false
+    },    "scrollAction": {
+      "type": "object",
+      "required": ["kind", "direction"],
+      "properties": {
+        "kind": {"const": "scroll"},
+        "direction": {"enum": ["forward", "backward", "up", "down"]}
+      },
+      "additionalProperties": false
+    },
+    "swipeAction": {
+      "type": "object",
+      "required": ["kind", "from", "to"],
+      "properties": {
+        "kind": {"const": "swipe"},
+        "from": {"$ref": "#/$defs/point"},
+        "to": {"$ref": "#/$defs/point"},
+        "duration_ms": {"type": "integer", "minimum": 100, "maximum": 3000}
+      },
+      "additionalProperties": false
+    },
+    "backAction": {
+      "type": "object",
+      "required": ["kind"],
+      "properties": {"kind": {"const": "back"}},
+      "additionalProperties": false
+    },
+    "homeAction": {
+      "type": "object",
+      "required": ["kind"],      "properties": {"kind": {"const": "home"}},
+      "additionalProperties": false
+    },
+    "openAppAction": {
+      "type": "object",
+      "required": ["kind", "package"],
+      "properties": {
+        "kind": {"const": "open_app"},
+        "package": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 240,
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*)+$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "action": {
+      "oneOf": [
+        {"$ref": "#/$defs/tapAction"},
+        {"$ref": "#/$defs/longPressAction"},
+        {"$ref": "#/$defs/typeAction"},
+        {"$ref": "#/$defs/clearAction"},
+        {"$ref": "#/$defs/scrollAction"},
+        {"$ref": "#/$defs/swipeAction"},
+        {"$ref": "#/$defs/backAction"},
+        {"$ref": "#/$defs/homeAction"},
+        {"$ref": "#/$defs/openAppAction"}
+      ]
+    },    "devicesRequest": {
+      "type": "object",
+      "required": ["protocol", "operation", "arguments"],
+      "properties": {
+        "protocol": {"const": "cyclone.live.v1"},
+        "operation": {"const": "devices"},
+        "arguments": {"type": "object", "additionalProperties": false}
+      },
+      "additionalProperties": false
+    },
+    "seeRequest": {
+      "type": "object",
+      "required": ["protocol", "operation", "arguments"],
+      "properties": {
+        "protocol": {"const": "cyclone.live.v1"},
+        "operation": {"const": "see"},
+        "arguments": {
+          "type": "object",
+          "properties": {
+            "device": {"$ref": "#/$defs/device"},
+            "goal": {"type": "string", "maxLength": 1000}
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "findRequest": {      "type": "object",
+      "required": ["protocol", "operation", "arguments"],
+      "properties": {
+        "protocol": {"const": "cyclone.live.v1"},
+        "operation": {"const": "find"},
+        "arguments": {
+          "type": "object",
+          "required": ["observation_id", "query"],
+          "properties": {
+            "device": {"$ref": "#/$defs/device"},
+            "observation_id": {"type": "string", "minLength": 1, "maxLength": 240},
+            "query": {"type": "string", "minLength": 1, "maxLength": 240}
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "inspectRequest": {
+      "type": "object",
+      "required": ["protocol", "operation", "arguments"],
+      "properties": {
+        "protocol": {"const": "cyclone.live.v1"},
+        "operation": {"const": "inspect"},
+        "arguments": {
+          "type": "object",
+          "required": ["observation_id", "element_id"],          "properties": {
+            "device": {"$ref": "#/$defs/device"},
+            "observation_id": {"type": "string", "minLength": 1, "maxLength": 240},
+            "element_id": {"type": "string", "minLength": 1, "maxLength": 240}
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "actRequest": {
+      "type": "object",
+      "required": ["protocol", "operation", "arguments"],
+      "properties": {
+        "protocol": {"const": "cyclone.live.v1"},
+        "operation": {"const": "act"},
+        "arguments": {
+          "type": "object",
+          "required": ["request_id", "observation_id", "action"],
+          "properties": {
+            "device": {"$ref": "#/$defs/device"},
+            "request_id": {"type": "string", "minLength": 8, "maxLength": 128},
+            "observation_id": {"type": "string", "minLength": 1, "maxLength": 240},
+            "action": {"$ref": "#/$defs/action"},
+            "goal": {"type": "string", "maxLength": 1000},
+            "user_authorized": {"type": "boolean", "default": false}
+          },
+          "additionalProperties": false
+        }      },
+      "additionalProperties": false
+    },
+    "sessionRequest": {
+      "type": "object",
+      "required": ["protocol", "operation", "arguments"],
+      "properties": {
+        "protocol": {"const": "cyclone.live.v1"},
+        "operation": {"const": "session"},
+        "arguments": {
+          "type": "object",
+          "properties": {
+            "operation": {"enum": ["status", "enable", "pause", "stop"]}
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

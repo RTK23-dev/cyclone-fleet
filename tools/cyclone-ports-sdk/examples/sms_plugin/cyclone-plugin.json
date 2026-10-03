@@ -1,0 +1,12 @@
+{
+  "contract": "cyclone.ports/1",
+  "name": "sms-codes",
+  "version": "0.1.0",
+  "title": "SMS codes",
+  "description": "Receives verification texts forwarded from the owner's other phone and delivers the code to a waiting run. Codes live in memory for at most 3 minutes and are never written down.",
+  "endpoint": "http://127.0.0.1:8773",
+  "serves": [
+    {"port": "code.in", "way": "in"}
+  ],
+  "needs": {"personal": false}
+}

@@ -1,0 +1,34 @@
+{
+  "schema": "cyclone-golden-page-v1",
+  "synthetic": true,
+  "pixelCapture": false,
+  "source": "synthetic-json-fixture",
+  "note": "Synthetic page-card fixture for V4 slice 5. Not a Pixel 8 capture. Physical locate remains UNVERIFIED.",
+  "goal": "Alarm",
+  "expectedTarget": {
+    "elementId": "alarm-tab",
+    "contentDescription": "Alarm",
+    "resourceId": "com.google.android.deskclock:id/tab_alarm"
+  },
+  "observation": {
+    "package": "com.google.android.deskclock",
+    "activity": "com.android.deskclock.DeskClock",
+    "pageKey": "clock::main",
+    "title": "Clock",
+    "pageText": "Clock. Alarm. Clock tab. Timer. Stopwatch. Bedtime.",
+    "pageSummary": "Clock app main tabs; Alarm is the labelled locate target via contentDescription.",
+    "counts": { "raw": 88, "semantic": 9, "agent": 7 },
+    "lastTransition": { "fromPageKey": "pixel_launcher::home", "toPageKey": "clock::main", "via": "click", "label": "Clock" },
+    "routeHints": [{ "pageKey": "clock::alarm", "confidence": 0.91, "freshness": "SYNTHETIC", "action": { "tool": "phone.click", "label": "Alarm" } }],
+    "controls": [
+      { "id": "clock-tab", "contentDescription": "Clock", "role": "tab", "resourceId": "com.google.android.deskclock:id/tab_clock", "clickable": true, "actions": ["click"] },
+      { "id": "timer-tab", "contentDescription": "Timer", "role": "tab", "resourceId": "com.google.android.deskclock:id/tab_timer", "clickable": true, "actions": ["click"] },
+      { "id": "stopwatch-tab", "contentDescription": "Stopwatch", "role": "tab", "resourceId": "com.google.android.deskclock:id/tab_stopwatch", "clickable": true, "actions": ["click"] },
+      { "id": "alarm-tab", "contentDescription": "Alarm", "role": "tab", "resourceId": "com.google.android.deskclock:id/tab_alarm", "clickable": true, "actions": ["click"] },
+      { "id": "bedtime-tab", "contentDescription": "Bedtime", "role": "tab", "clickable": true, "actions": ["click"] },
+      { "id": "more", "label": "More options", "role": "button", "clickable": true, "actions": ["click"] }
+    ],
+    "pageTextSchema": "cyclone-page-text-v1",
+    "pageSummarySchema": "cyclone-page-summary-v1"
+  }
+}

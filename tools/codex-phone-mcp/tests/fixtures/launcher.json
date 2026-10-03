@@ -1,0 +1,12 @@
+{
+  "device": {"serial": "MOCKPIXEL8", "model": "Pixel 8", "androidVersion": "16"},
+  "package": "com.google.android.apps.nexuslauncher",
+  "pageKey": "pixel_launcher::home",
+  "title": "Pixel Launcher",
+  "screen": {"width": 1080, "height": 2400},
+  "rawNodeCount": 121,
+  "semanticControlCount": 12,
+  "agentControlCount": 12,
+  "controls": [{"id": "settings-shortcut", "label": "Settings", "role": "icon", "clickable": true}],
+  "screenshot": {"id": "shot-home", "path": "C:\\Cyclone\\shots\\home.png"}
+}

@@ -1,0 +1,161 @@
+name: Re-sign V5 alpha.39 with the rotated release key
+# Alpha.34 was signed with the rotated release key (lineage: historical dev key -> CN=Cyclone Mobile, OU=Release).
+# A phone that installed alpha.34 only accepts updates signed with that release key, so alpha.35-39 (historical key
+# only) could not be installed over it. This re-signs the exact, already-verified alpha.39 CI build with the release
+# key and lineage (the same scheme as mobile-release.yml) and replaces the APK on the alpha.39 release.
+on:
+  # Dispatched by scripts/release/upload-rotated-signing-for-alpha39.ps1 once the release key secrets are in place.
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: v5-alpha39-rotated-resign
+  cancel-in-progress: false
+env:
+  SOURCE_SHA: 7d6ac2cac02fe4dbca1ba7d7e50a476421190c73
+  MOBILE_RUN: '36234949941'
+  TAG: v5.0.0-alpha.39.dev1
+  APK_NAME: Cyclone-5.0.0-alpha.39.dev1.apk
+  ARTIFACT_NAME: Cyclone-Android-5.0.0-alpha.39.dev1
+  # Signer #2 of alpha.34's lineage (the key installed phones now require) and signer #1 (historical dev key).
+  RELEASE_CERT_SHA256: e78c6e0b32d66da05839243c65e9987ba54722d402543f00408b57b1585dbf60
+  HISTORICAL_CERT_SHA256: cc2a7a5d8e5e3686d8f7afe0a0e6e76ca42a1e6e6306e26f0eba84e4e69f3965
+jobs:
+  resign:
+    environment: mobile-release-approval
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify the exact-source alpha.39 Mobile CI run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$MOBILE_RUN" > run.json
+          jq -e --arg sha "$SOURCE_SHA" --arg repo "$GITHUB_REPOSITORY" '
+            .name == "Cyclone Mobile CI" and .path == ".github/workflows/mobile-ci.yml" and .conclusion == "success"
+            and .event == "push" and .head_sha == $sha and .head_repository.full_name == $repo
+            and .head_branch == "release/cyclone-mobile-v5.0.0-alpha.39.dev1"' run.json >/dev/null
+
+      - name: Download the unsigned candidate and the alpha.34 reference APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh run download "$MOBILE_RUN" --repo "$GITHUB_REPOSITORY" --name "$ARTIFACT_NAME" --dir candidate
+          test "$(tr -d '\r\n' < candidate/source-sha.txt)" = "$SOURCE_SHA"
+          test "$(tr -d '\r\n' < candidate/run-id.txt)" = "$MOBILE_RUN"
+          test "$(tr -d '\r\n' < candidate/signing-state.txt)" = UNSIGNED_VERIFIED_CANDIDATE
+          (cd candidate && sha256sum --check "$APK_NAME.sha256")
+          mkdir -p reference
+          gh release download v5.0.0-alpha.34.dev1 --repo "$GITHUB_REPOSITORY" --pattern 'Cyclone-5.0.0-alpha.34.dev1.apk' --dir reference
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3
+        with:
+          packages: platform-tools
+
+      - name: Install Android build tools
+        run: sdkmanager --install 'build-tools;35.0.0'
+
+      - name: Validate protected Android signing secrets
+        env:
+          CYCLONE_KEYSTORE_B64: ${{ secrets.CYCLONE_ANDROID_KEYSTORE_B64 }}
+          CYCLONE_STORE_PASSWORD: ${{ secrets.CYCLONE_ANDROID_STORE_PASSWORD }}
+          CYCLONE_KEY_ALIAS: ${{ secrets.CYCLONE_ANDROID_KEY_ALIAS }}
+          CYCLONE_KEY_PASSWORD: ${{ secrets.CYCLONE_ANDROID_KEY_PASSWORD }}
+          CYCLONE_SIGNING_LINEAGE_B64: ${{ secrets.CYCLONE_ANDROID_SIGNING_LINEAGE_B64 }}
+        run: |
+          set -euo pipefail
+          missing=()
+          test -n "$CYCLONE_KEYSTORE_B64" || missing+=(CYCLONE_ANDROID_KEYSTORE_B64)
+          test -n "$CYCLONE_STORE_PASSWORD" || missing+=(CYCLONE_ANDROID_STORE_PASSWORD)
+          test -n "$CYCLONE_KEY_ALIAS" || missing+=(CYCLONE_ANDROID_KEY_ALIAS)
+          test -n "$CYCLONE_KEY_PASSWORD" || missing+=(CYCLONE_ANDROID_KEY_PASSWORD)
+          test -n "$CYCLONE_SIGNING_LINEAGE_B64" || missing+=(CYCLONE_ANDROID_SIGNING_LINEAGE_B64)
+          if [ "${#missing[@]}" -ne 0 ]; then echo "Missing release signing secrets: ${missing[*]}" >&2; exit 1; fi
+
+      - name: Sign with the rotated release key and verify it matches alpha.34
+        env:
+          CYCLONE_KEYSTORE_B64: ${{ secrets.CYCLONE_ANDROID_KEYSTORE_B64 }}
+          CYCLONE_STORE_PASSWORD: ${{ secrets.CYCLONE_ANDROID_STORE_PASSWORD }}
+          CYCLONE_KEY_ALIAS: ${{ secrets.CYCLONE_ANDROID_KEY_ALIAS }}
+          CYCLONE_KEY_PASSWORD: ${{ secrets.CYCLONE_ANDROID_KEY_PASSWORD }}
+          CYCLONE_SIGNING_LINEAGE_B64: ${{ secrets.CYCLONE_ANDROID_SIGNING_LINEAGE_B64 }}
+        run: |
+          set -euo pipefail
+          mkdir -p signed
+          keystore="$RUNNER_TEMP/cyclone-release.keystore"
+          lineage="$RUNNER_TEMP/cyclone-signing-lineage"
+          printf '%s' "$CYCLONE_KEYSTORE_B64" | base64 --decode > "$keystore"
+          printf '%s' "$CYCLONE_SIGNING_LINEAGE_B64" | base64 --decode > "$lineage"
+          chmod 600 "$keystore" "$lineage"
+          bt="$ANDROID_SDK_ROOT/build-tools/35.0.0"
+          "$bt/apksigner" sign \
+            --ks "$keystore" \
+            --ks-key-alias "$CYCLONE_KEY_ALIAS" \
+            --ks-pass env:CYCLONE_STORE_PASSWORD \
+            --key-pass env:CYCLONE_KEY_PASSWORD \
+            --lineage "$lineage" \
+            --rotation-min-sdk-version 33 \
+            --v1-signing-enabled false \
+            --v2-signing-enabled false \
+            --v3-signing-enabled true \
+            --v4-signing-enabled false \
+            --out "signed/$APK_NAME" \
+            "candidate/$APK_NAME"
+          "$bt/apksigner" verify --min-sdk-version 33 --verbose --print-certs "signed/$APK_NAME" | tee signed/signing-info.txt
+          "$bt/apksigner" lineage --in "$lineage" --print-certs -v > signed/signing-lineage.txt
+          # The signer phones now require: the same certificate that signed alpha.34.
+          new_cert="$("$bt/apksigner" verify --min-sdk-version 33 --print-certs "signed/$APK_NAME" | sed -n 's/^Signer #1 certificate SHA-256 digest: //p' | head -1)"
+          ref_cert="$("$bt/apksigner" verify --print-certs reference/Cyclone-5.0.0-alpha.34.dev1.apk | sed -n 's/^Signer #1 certificate SHA-256 digest: //p' | head -1)"
+          echo "alpha.39 signer: $new_cert"
+          echo "alpha.34 signer: $ref_cert"
+          test "$new_cert" = "$RELEASE_CERT_SHA256"
+          test "$new_cert" = "$ref_cert"
+          # The lineage still proves the historical key, so phones still on alpha.33 or older can update too.
+          grep -q "$HISTORICAL_CERT_SHA256" signed/signing-lineage.txt
+          grep -q "$RELEASE_CERT_SHA256" signed/signing-lineage.txt
+          "$bt/aapt2" dump badging "signed/$APK_NAME" > badging.txt
+          grep -q "package: name='com.cyclone.mobile' versionCode='181' versionName='5.0.0-alpha.39.dev1'" badging.txt
+          (cd signed && sha256sum "$APK_NAME" > "$APK_NAME.sha256")
+          printf '%s\n' 'SIGNED_PROTECTED_ENVIRONMENT_ROTATED' > signed/signing-state.txt
+          printf '%s\n' "Signed with the rotated Cyclone release key (CN=Cyclone Mobile, OU=Release) and its signing lineage from the historical development key, the same signer as alpha.34. Installs as an update over alpha.34 and over alpha.33 or older. It does not install over alpha.35-38, which were signed with the historical key only." > signed/update-compatibility.txt
+
+      - name: Destroy temporary signing material
+        if: always()
+        run: rm -f "$RUNNER_TEMP/cyclone-release.keystore" "$RUNNER_TEMP/cyclone-signing-lineage"
+
+      - name: Replace the alpha.39 APK on the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern release-manifest.json --dir old
+          python3 - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          manifest = json.loads(Path('old/release-manifest.json').read_text())
+          apk = Path('signed') / os.environ['APK_NAME']
+          manifest['sha256'][apk.name] = hashlib.sha256(apk.read_bytes()).hexdigest()
+          manifest['signing'] = 'ROTATED_RELEASE_KEY_WITH_LINEAGE'
+          Path('signed/release-manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
+          PY
+          gh release upload "$TAG" --repo "$GITHUB_REPOSITORY" --clobber \
+            "signed/$APK_NAME" "signed/$APK_NAME.sha256" signed/signing-info.txt signed/signing-state.txt \
+            signed/update-compatibility.txt signed/signing-lineage.txt signed/release-manifest.json
+          # The v4 .idsig belonged to the old signature; a stale one would not match the new APK.
+          gh release delete-asset "$TAG" "$APK_NAME.idsig" --repo "$GITHUB_REPOSITORY" --yes || true
+          gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json body --jq .body > notes.md
+          python3 - <<'PY'
+          from pathlib import Path
+          notes = Path('notes.md').read_text()
+          marker = '**Re-signed with the rotated release key.**'
+          if marker not in notes:
+              note = (marker + ' Alpha.34 moved Cyclone to a new release signing key, so phones on alpha.34 refused '
+                      'alpha.35-39. This APK is the same build, now signed with that release key and its lineage: it '
+                      'installs as an update over alpha.34 (and over alpha.33 or older). Do not uninstall.\n\n')
+              Path('notes.md').write_text(note + notes)
+          PY
+          gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --notes-file notes.md
+          gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name'

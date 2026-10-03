@@ -1,0 +1,35 @@
+{
+  "schema": "cyclone-golden-page-v1",
+  "synthetic": true,
+  "pixelCapture": false,
+  "source": "synthetic-json-fixture",
+  "note": "Synthetic page-card fixture for V4 slice 5. Not a Pixel 8 capture. Physical locate remains UNVERIFIED.",
+  "goal": "Wikipedia",
+  "expectedTarget": {
+    "elementId": "result-wikipedia",
+    "label": "Wikipedia",
+    "resourceId": "com.android.chrome:id/result_title"
+  },
+  "observation": {
+    "package": "com.android.chrome",
+    "activity": "org.chromium.chrome.browser.search.SearchActivity",
+    "pageKey": "chrome::search-results",
+    "title": "phone skill OS - Search",
+    "pageText": "Chrome search results for phone skill OS. Ads. Wikipedia. Cyclone docs. News articles. Related searches.",
+    "pageSummary": "Chrome search results; Wikipedia is the labelled organic hit.",
+    "counts": { "raw": 188, "semantic": 13, "agent": 9 },
+    "lastTransition": { "fromPageKey": "chrome::ntp", "toPageKey": "chrome::search-results", "via": "type", "label": "Search or type web address" },
+    "routeHints": [{ "pageKey": "chrome::article", "confidence": 0.77, "freshness": "SYNTHETIC", "action": { "tool": "phone.click", "label": "Wikipedia" } }],
+    "nextCursor": "results:offset=10",
+    "controls": [
+      { "id": "omnibox", "label": "phone skill OS", "role": "edittext", "resourceId": "com.android.chrome:id/url_bar", "editable": true, "clickable": true, "actions": ["click"] },
+      { "id": "ad-one", "label": "Sponsored listing", "role": "link", "clickable": true, "actions": ["click"] },
+      { "id": "news-hit", "label": "News about phone skills", "role": "link", "clickable": true, "actions": ["click"] },
+      { "id": "result-wikipedia", "label": "Wikipedia", "role": "link", "resourceId": "com.android.chrome:id/result_title", "contentDescription": "Wikipedia The Free Encyclopedia", "clickable": true, "actions": ["click"] },
+      { "id": "docs-hit", "label": "Cyclone docs", "role": "link", "clickable": true, "actions": ["click"] },
+      { "id": "related", "label": "Related searches", "role": "header", "clickable": false, "actions": [] }
+    ],
+    "pageTextSchema": "cyclone-page-text-v1",
+    "pageSummarySchema": "cyclone-page-summary-v1"
+  }
+}

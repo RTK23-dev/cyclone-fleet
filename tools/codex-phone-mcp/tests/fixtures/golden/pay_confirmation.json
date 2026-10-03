@@ -1,0 +1,34 @@
+{
+  "schema": "cyclone-golden-page-v1",
+  "synthetic": true,
+  "pixelCapture": false,
+  "source": "synthetic-json-fixture",
+  "note": "Synthetic page-card fixture for V4 slice 5. Not a Pixel 8 capture. Physical locate remains UNVERIFIED.",
+  "goal": "Place order",
+  "expectedTarget": {
+    "elementId": "place-order",
+    "label": "Place order",
+    "resourceId": "com.example.foodshop:id/place_order"
+  },
+  "observation": {
+    "package": "com.example.foodshop",
+    "activity": "com.example.foodshop.checkout.ConfirmActivity",
+    "pageKey": "foodshop::pay-confirm",
+    "title": "Confirm order",
+    "pageText": "Confirm order. Payee Example Food Shop. Amount 18.40. Payment method Visa ending 0000. Place order. Cyclone GATE required before pay. No plaintext secrets on this card.",
+    "pageSummary": "Synthetic pay confirmation. GATE required. Pixel-unverified.",
+    "counts": { "raw": 121, "semantic": 10, "agent": 7 },
+    "lastTransition": { "fromPageKey": "foodshop::cart", "toPageKey": "foodshop::pay-confirm", "via": "click", "label": "Go to checkout" },
+    "routeHints": [{ "pageKey": "foodshop::receipt", "confidence": 0.6, "freshness": "SYNTHETIC", "action": { "tool": "phone.click", "label": "Place order" }, "gate": "pay" }],
+    "controls": [
+      { "id": "edit-cart", "label": "Edit cart", "role": "button", "clickable": true, "actions": ["click"] },
+      { "id": "payee", "label": "Example Food Shop", "role": "text", "clickable": false, "actions": [] },
+      { "id": "amount", "label": "18.40", "role": "text", "clickable": false, "actions": [] },
+      { "id": "method", "label": "Visa ending 0000", "role": "text", "clickable": false, "actions": [] },
+      { "id": "place-order", "label": "Place order", "role": "button", "resourceId": "com.example.foodshop:id/place_order", "risk": "pay", "clickable": true, "actions": ["click"] },
+      { "id": "cancel", "label": "Cancel", "role": "button", "clickable": true, "actions": ["click"] }
+    ],
+    "pageTextSchema": "cyclone-page-text-v1",
+    "pageSummarySchema": "cyclone-page-summary-v1"
+  }
+}

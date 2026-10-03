@@ -1,0 +1,11 @@
+{
+  "note": "Made by apps/glass (hpke.ts) with RFC 9180 A.3.1's ephemeral and recipient keys; opened by the phone's HpkeTest.",
+  "suite": "DHKEM(P-256,HKDF-SHA256)/HKDF-SHA256/AES-256-GCM",
+  "skRm": "f3ce7fdae57e1a310d87f1ebbde6f328be0a99cdbcadf4d6589cf29de4b8ffd2",
+  "pkRm": "04fe8c19ce0905191ebc298a9245792531f26f0cece2460639e8bc39cb7f706a826a779b4cf969b8a0e539c7f62fb3d30ad6aa8f80e30f1d128aafd68a2ce72ea0",
+  "info": "cyclone-sealed-delivery/v1",
+  "aad": "{\"deviceKey\":\"FIXTURE\",\"expiresAt\":1893456000000,\"leaseId\":\"ls_fixture00000000\",\"place\":\"package:com.example.shop\",\"slot\":\"password\",\"taskId\":\"tsk_fixture0000\"}",
+  "plaintext": "CANARY-fixture-7f3a",
+  "enc": "04a92719c6195d5085104f469a8b9814d5838ff72b60501e2c4466e5e67b325ac98536d7b61a1af4b78e5b7f951c0900be863c403ce65c9bfcb9382657222d18c4",
+  "ct": "6726e806ec7fbeaeccb52212cc595030fd6c06b404c82dbc87aa1872d24ae88877d1e3"
+}

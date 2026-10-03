@@ -1,0 +1,210 @@
+/* Plan 33 (C0): the Command Center. Tokens only. */
+.page-command { display: grid; gap: var(--space-4); }
+.cc-stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: var(--space-3); }
+.cc-notice { min-height: 1.4em; margin: 0; font-size: var(--text-sm); color: var(--text-muted); }
+.cc-notice-error { color: var(--danger); }
+.cc-form-area:empty { display: none; }
+.cc-body { display: grid; gap: var(--space-3); }
+.cc-card { display: grid; gap: var(--space-3); }
+.cc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--space-3); }
+.cc-field { display: flex; flex-direction: column; gap: var(--space-1); }
+.cc-field-label { font-size: var(--text-xs); color: var(--text-muted); }
+.cc-input {
+  font: inherit; font-size: var(--text-sm); color: var(--text); background: var(--surface);
+  border: 1px solid var(--border-strong); border-radius: var(--radius-sm); padding: var(--space-2) var(--space-3);
+  box-sizing: border-box; min-width: 0;
+}
+.cc-input:focus { outline: none; box-shadow: var(--focus-ring); border-color: var(--accent); }
+.cc-goal { min-height: 84px; resize: vertical; width: 100%; }
+.cc-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.cc-actions .cc-input { flex: 1 1 180px; }
+.cc-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.cc-checks { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); }
+.cc-check { display: inline-flex; align-items: center; gap: var(--space-1); font-size: var(--text-sm); }
+.cc-group { display: grid; gap: var(--space-3); }
+.cc-when { display: grid; gap: var(--space-3); }
+.cc-hint { margin: 0; font-size: var(--text-sm); color: var(--text-muted); }
+.cc-sub { display: block; font-size: var(--text-xs); color: var(--text-faint); margin-top: 2px; }
+
+.cc-table {
+  width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); overflow: hidden; font-size: var(--text-sm);
+}
+.cc-table th {
+  text-align: left; font-weight: 500; color: var(--text-faint); background: var(--surface-muted);
+  padding: var(--space-2) var(--space-3); font-size: var(--text-xs);
+}
+.cc-table td { padding: var(--space-3); border-top: 1px solid var(--border); vertical-align: top; }
+.cc-table td .btn { padding: var(--space-1) var(--space-2); }
+
+.cc-approvals { display: grid; gap: var(--space-3); }
+.cc-approval { display: grid; gap: var(--space-2); border-left: 3px solid var(--warning); }
+.cc-approval-text { margin: 0; font-size: var(--text-md); }
+.cc-send {
+  display: grid; grid-template-columns: max-content 1fr; gap: var(--space-1) var(--space-3); margin: 0;
+  padding: var(--space-3); background: var(--surface-muted); border-radius: var(--radius-md); font-size: var(--text-sm);
+}
+.cc-send dt { color: var(--text-muted); }
+.cc-send dd { margin: 0; }
+.cc-send-text { white-space: pre-wrap; font-weight: 500; }
+
+@media (max-width: 720px) {
+  .cc-table { display: block; overflow-x: auto; }
+}
+
+/* Plan 33 (C1): the vault. */
+.vault, .vault-open { display: grid; gap: var(--space-3); }
+.vault-card { max-width: 760px; }
+.vault-recovery {
+  display: block; font-family: var(--font-mono); font-size: var(--text-lg); letter-spacing: 0.04em; word-break: break-all;
+  padding: var(--space-3) var(--space-4); background: var(--surface-muted); border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-md);
+}
+.vault-stepup { border-left: 3px solid var(--accent); max-width: 520px; }
+.vault-secret .vault-mask { font-family: var(--font-mono); font-size: var(--text-sm); word-break: break-all; }
+.vault-health .chip { font-size: var(--text-xs); }
+.vault-editor { border-left: 3px solid var(--accent); }
+
+/* Plan 33 (C2): phones and sealed delivery. */
+.vault-phone { display: grid; gap: var(--space-2); padding: var(--space-3) 0; border-top: 1px solid var(--border); }
+.vault-phone:first-of-type { border-top: 0; }
+.vault-fingerprint { font-family: var(--font-mono); font-size: var(--text-md); letter-spacing: 0.06em; }
+.vault-pending { padding: var(--space-2) 0; }
+.card-subtitle { font-size: var(--text-sm); margin: var(--space-2) 0 0; color: var(--text-muted); }
+
+/* Plan 33 (C3): connections and the "make first" editor. */
+.cc-connection-list, .cc-connection-activity { display: grid; gap: var(--space-3); margin-top: var(--space-3); }
+.cc-subtitle { font-size: var(--text-md); margin: var(--space-3) 0 var(--space-1); }
+.cc-tools { display: grid; gap: var(--space-2); margin: var(--space-2) 0 var(--space-3); }
+.cc-tool { align-items: baseline; flex-wrap: wrap; }
+.cc-tool .cc-sub { flex-basis: 100%; margin-left: 26px; }
+.cc-make { margin: var(--space-3) 0; display: grid; gap: var(--space-2); }
+.cc-make-panel:empty { display: none; }
+.cc-make-panel { border-left: 3px solid var(--accent); padding-left: var(--space-3); display: grid; gap: var(--space-2); }
+.cc-artifact { flex-wrap: wrap; }
+
+/* Plan 34: connect any MCP. */
+.cc-add-body { display: grid; gap: var(--space-2); margin-top: var(--space-3); }
+.cc-probe { list-style: none; margin: var(--space-2) 0; padding: 0; display: grid; gap: var(--space-1); font-size: var(--text-sm); }
+.cc-probe-ok { color: var(--text); }
+.cc-probe-no { color: var(--text-muted); }
+.cc-setup { display: grid; gap: var(--space-2); margin: var(--space-3) 0; padding: var(--space-3) var(--space-4); border-left: 3px solid var(--accent); background: var(--surface-muted); border-radius: var(--radius-md); }
+.cc-command { display: block; font-family: var(--font-mono); font-size: var(--text-sm); word-break: break-all; padding: var(--space-2) var(--space-3); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); }
+.cc-strong { font-weight: 600; }
+.cc-log, .cc-result { font-family: var(--font-mono); font-size: var(--text-xs); white-space: pre-wrap; word-break: break-all; max-height: 240px; overflow: auto; margin: 0; }
+.cc-log:empty, .cc-result:empty { display: none; }
+.cc-group-title { font-size: var(--text-sm); color: var(--text-muted); margin: var(--space-2) 0 0; }
+.cc-tool-row { display: grid; gap: var(--space-1); padding: var(--space-2) 0; border-top: 1px solid var(--border); }
+.cc-tool-row:first-of-type { border-top: 0; }
+.cc-rule { max-width: 320px; }
+.cc-try { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; }
+.cc-try .cc-result { flex-basis: 100%; }
+
+/* Plan 34 M3/M4: steps, and connector cards. */
+.cc-steps { display: grid; gap: var(--space-3); }
+.cc-step { display: grid; gap: var(--space-2); padding: var(--space-3); background: var(--surface-muted); border: 1px solid var(--border); border-radius: var(--radius-md); }
+.cc-step > .cc-row { justify-content: space-between; }
+.cc-curated { display: grid; gap: var(--space-2); margin: var(--space-2) 0 var(--space-3); }
+.cc-curated-row { align-items: center; padding: var(--space-2) 0; border-top: 1px solid var(--border); }
+.cc-curated-text { flex: 1 1 16rem; min-width: 0; }
+
+/* Phone width: the seven Command Center tabs scroll sideways instead of widening the page. */
+.page-command .segmented { max-width: 100%; overflow-x: auto; scrollbar-width: thin; }
+.page-command .segmented .segment { flex: 0 0 auto; }
+
+/* Plan 43 (T5 + T6): Accounts. A phone strip, the phone's apps on the left, the open app on the right. */
+.ac { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+.ac-phones { display: flex; flex-wrap: wrap; gap: 8px; }
+.ac-phone {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 8px 14px; border: 1px solid var(--border);
+  border-radius: var(--radius-md); background: var(--surface); color: var(--text); font-size: var(--text-sm); cursor: pointer;
+}
+.ac-phone.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.ac-phone .muted { font-size: var(--text-xs); }
+.ac-note { margin: 0; color: var(--warning); font-size: var(--text-sm); }
+.ac-layout { display: grid; grid-template-columns: minmax(240px, 320px) minmax(0, 1fr); gap: 16px; align-items: start; }
+.ac-apps { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.ac-list { display: flex; flex-direction: column; gap: 4px; max-height: 70vh; overflow-y: auto; }
+.ac-app {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; padding: 8px 10px; text-align: left;
+  border: 1px solid transparent; border-radius: var(--radius-sm); background: transparent; color: var(--text); cursor: pointer;
+}
+.ac-app:hover { background: var(--surface-muted); }
+.ac-app.active { background: var(--surface-muted); border-color: var(--border-strong); }
+.ac-app-text { display: flex; flex-direction: column; min-width: 0; }
+.ac-app-text strong, .ac-app-text .muted { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ac-app-text .muted { font-size: var(--text-xs); font-family: var(--font-mono); }
+.ac-app-facts { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 4px; flex-shrink: 0; }
+.ac-detail { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.ac-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.ac-title { margin: 0; font-size: var(--text-lg); }
+.ac-head .muted { margin: 2px 0 0; font-family: var(--font-mono); font-size: var(--text-xs); }
+.ac-card { display: flex; flex-direction: column; gap: 8px; }
+.ac-card p { margin: 0; }
+.ac-pages { display: flex; flex-direction: column; gap: 8px; margin: 0; padding-left: 20px; }
+.ac-page { display: flex; flex-direction: column; gap: 4px; }
+.ac-page-top { display: flex; align-items: center; gap: 8px; }
+.ac-page .muted { font-size: var(--text-xs); }
+.ac-fields { display: flex; flex-wrap: wrap; gap: 4px; }
+.ac-field {
+  padding: 2px 8px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface-muted); font-size: var(--text-xs);
+}
+.ac-field-vault { border-style: dashed; color: var(--text-muted); }
+.ac-map { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px; }
+.ac-map .cc-hint { flex-basis: 100%; }
+.ac-table { min-width: 0; overflow-x: auto; }
+.ac-all-title { margin: 8px 0; font-size: var(--text-md); }
+@media (max-width: 760px) {
+  .ac-layout { grid-template-columns: minmax(0, 1fr); }
+  .ac-list { max-height: 40vh; }
+}
+
+/* Plan 43 (T7): Create accounts. */
+.ca { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.ca-create { background: var(--accent); border-color: var(--accent); }
+.ca-sheet:empty { display: none; }
+.ca-sheet { display: flex; flex-direction: column; gap: 8px; padding: 12px; border: 1px solid var(--accent); border-radius: var(--radius-md); background: var(--surface); }
+.ca-title { margin: 0; font-size: var(--text-md); }
+.ca-rows { display: flex; flex-direction: column; gap: 4px; margin: 0; padding-left: 18px; }
+.ca-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; font-size: var(--text-sm); }
+.ca-row-error .muted { color: var(--danger); }
+.ca-status:empty { display: none; }
+
+/* Plan 43 (T4): a phone's profiles, switching from the PC, and a profile's apps. */
+.pf { display: flex; flex-direction: column; gap: 8px; }
+.pf[hidden] { display: none; }
+.pf-strip { display: flex; flex-wrap: wrap; gap: 6px; }
+.pf-profile {
+  display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid var(--border); border-radius: 999px;
+  background: var(--surface); color: var(--text); font-size: var(--text-sm); cursor: pointer;
+}
+.pf-profile.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.pf-dot { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; border-radius: 999px;
+  background: var(--surface-muted); font-size: 11px; }
+.pf-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.pf-actions .muted { font-size: var(--text-sm); }
+.pf-manager { display: flex; flex-direction: column; gap: 6px; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); }
+.pf-manager[hidden] { display: none; }
+.pf-title { margin: 4px 0 0; font-size: var(--text-sm); }
+.pf-apps { display: flex; flex-direction: column; gap: 2px; margin: 0; padding: 0; list-style: none; max-height: 40vh; overflow-y: auto; }
+.pf-app { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; align-items: center; gap: 8px; font-size: var(--text-sm); }
+.pf-app .muted { font-family: var(--font-mono); font-size: var(--text-xs); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Command Center → Numbers (alpha.102): every number Cyclone can receive codes on. Tokens only. */
+.nm { display: grid; gap: var(--space-4); }
+.nm-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--space-3); }
+.nm-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.nm-spacer { flex: 1 1 auto; }
+.nm-h { margin: 0; font-size: var(--text-md); }
+.nm-muted { color: var(--text-muted); font-size: var(--text-sm); }
+.nm-warn { color: var(--warning); font-size: var(--text-sm); }
+.nm-number { font-family: var(--font-mono); font-size: var(--text-md); }
+.nm-phone { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); padding: var(--space-1) 0; }
+.nm-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-3); }
+.nm-field { display: grid; gap: var(--space-1); }
+.nm-field[hidden] { display: none; }
+.nm-field-label { font-size: var(--text-sm); color: var(--text-muted); }
+.nm-actions { white-space: nowrap; }
+.nm-account { min-width: 180px; }
+.nm-editor { display: grid; gap: var(--space-3); padding: var(--space-2) 0; }
+.nm-row.nm-paused td { opacity: 0.7; }

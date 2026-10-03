@@ -1,0 +1,5 @@
+cloudflared 2026.8.3, Cloudflare Inc., Apache License 2.0.
+Source and license: https://github.com/cloudflare/cloudflared/tree/2026.8.3
+Binary fetched and SHA-256 verified during CI, never from an arbitrary user URL.
+Use requires network access to Cloudflare's Quick Tunnel service. Public URL stays
+stable across CyclonePCRuntime restarts; reconnecting the tunnel creates a new URL.

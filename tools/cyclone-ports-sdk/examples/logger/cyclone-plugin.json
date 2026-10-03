@@ -1,0 +1,16 @@
+{
+  "contract": "cyclone.ports/1",
+  "name": "run-logger",
+  "version": "0.1.0",
+  "title": "Run logger",
+  "description": "Writes every run event, note and the account's fields to a JSONL file, and saves screenshots and files.",
+  "endpoint": "http://127.0.0.1:8771",
+  "serves": [
+    {"port": "run.event", "way": "out"},
+    {"port": "log.line", "way": "out"},
+    {"port": "screen.shot", "way": "out"},
+    {"port": "account.fields", "way": "out"},
+    {"port": "file.out", "way": "out"}
+  ],
+  "needs": {"personal": true}
+}

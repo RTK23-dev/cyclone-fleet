@@ -1,0 +1,86 @@
+name: Cyclone Glass CI
+
+on:
+  pull_request:
+    paths:
+      - 'apps/glass/**'
+      - 'apps/device-gateway/**'
+      - 'scripts/ci/glass_guard.py'
+      - 'scripts/ci/release_versions.py'
+      - 'release/version.toml'
+      - '.github/workflows/glass-ci.yml'
+  push:
+    branches: [main, 'v5/**', 'release/cyclone-mobile-v*', 'release/cyclone-glass-v*', 'claude/**']
+    paths:
+      - 'apps/glass/**'
+      - 'apps/device-gateway/**'
+      - 'scripts/ci/glass_guard.py'
+      - 'scripts/ci/release_versions.py'
+      - 'release/version.toml'
+      - '.github/workflows/glass-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: glass-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  glass:
+    name: Glass web app + gateway hosting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: apps/glass/package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13.7'
+      - name: Guards (versions, no intelligence in Glass)
+        run: |
+          python scripts/ci/release_versions.py --check
+          python scripts/ci/glass_guard.py
+          python -m unittest scripts/ci/tests/test_glass_guard.py scripts/ci/tests/test_release_versions.py -v
+      - name: Test and build Glass
+        working-directory: apps/glass
+        run: |
+          npm ci --no-audit --no-fund
+          npm test
+          npm run build
+          test -f dist/index.html
+      - name: Gateway hosting tests
+        run: |
+          python -m pip install --disable-pip-version-check -e 'apps/device-gateway[test]'
+          python -m pytest -q apps/device-gateway/tests/test_glass_hosting.py apps/device-gateway/tests/test_v5_contract.py
+      - name: Launcher smoke (real gateway serves the built bundle and exchanges a launch code)
+        env:
+          CYCLONE_DEVICE_GATEWAY_TOKEN: ci-glass-smoke-token
+          PYTHONUNBUFFERED: '1'
+          CYCLONE_DESKTOP_PAIRING_BOOTSTRAP: '1'
+          CYCLONE_DEVICE_GATEWAY_RUNTIME: ${{ runner.temp }}/glass-runtime
+          LOCALAPPDATA: ${{ runner.temp }}/glass-localappdata
+        run: |
+          timeout 90 cyclone-device-gateway glass --no-browser --print-url > launch.log 2>&1 &
+          for i in $(seq 1 120); do grep -q '/glass/#code=' launch.log && break; sleep 0.5; done
+          cat launch.log
+          URL=$(grep -o 'http://127.0.0.1:[0-9]*/glass/#code=[A-Za-z0-9_-]*' launch.log | head -1)
+          test -n "$URL" || { cat launch.log; exit 1; }
+          BASE=${URL%%/glass/*}
+          CODE=${URL##*code=}
+          curl -fsS "$BASE/glass/" | grep -q '<div id="app">'
+          curl -fsS -D headers.txt "$BASE/glass/" -o /dev/null
+          grep -qi "content-security-policy: default-src 'self'" headers.txt
+          curl -fsS -X POST -H 'Content-Type: application/json' -d "{\"code\":\"$CODE\"}" "$BASE/v1/glass/session" | grep -q '"token"'
+          test "$(curl -s -o /dev/null -w '%{http_code}' -X POST -H 'Content-Type: application/json' -d "{\"code\":\"$CODE\"}" "$BASE/v1/glass/session")" = "403"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cyclone-glass-${{ github.sha }}
+          path: apps/glass/dist
+          if-no-files-found: error

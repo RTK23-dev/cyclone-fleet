@@ -1,0 +1,19 @@
+name: Correct the alpha.41 release title
+on:
+  push:
+    branches: ['claude/cyclone-v5-handoff-review-9qrs40']
+    paths: ['.github/workflows/v5-alpha41-retitle.yml']
+permissions:
+  contents: write
+jobs:
+  retitle:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set the title the release notes describe
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh release edit v5.0.0-alpha.41.dev1 --repo "$GITHUB_REPOSITORY" \
+            --title "Cyclone V5 Alpha 41 — Hands: Cyclone can type into any app (developer alpha)"
+          gh release view v5.0.0-alpha.41.dev1 --repo "$GITHUB_REPOSITORY" --json name --jq .name

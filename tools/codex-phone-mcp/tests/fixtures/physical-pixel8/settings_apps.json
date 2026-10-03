@@ -1,0 +1,81 @@
+{
+  "schema": "cyclone-physical-page-capture-v1",
+  "synthetic": false,
+  "pixelCapture": true,
+  "source": "connected-pixel8-compact-observe-and-ui-search",
+  "capturedAt": "2026-09-01",
+  "deviceLabel": "Pixel_8",
+  "appVersion": "3.8.0-beta",
+  "goal": "See all apps",
+  "locate": {
+    "phoneLocateAvailable": false,
+    "fallback": "phone_ui_search",
+    "result": "semanticization_loss",
+    "targetInPageText": true,
+    "targetInSemanticControls": false,
+    "candidate": {
+      "elementId": "raw:54281ac3-56e6-47a7-82ce-9cc184b6d1f1:3f00e58c044c067d",
+      "label": "See all 97 apps",
+      "role": "text",
+      "resourceId": "android:id/title",
+      "bounds": { "left": 297, "top": 1253, "right": 520, "bottom": 1295 }
+    }
+  },
+  "observation": {
+    "observationId": "54281ac3-56e6-47a7-82ce-9cc184b6d1f1",
+    "package": "com.android.settings",
+    "activity": "com.android.settings.SubSettings",
+    "pageKey": "com.android.settings:SubSettings:920f6afaf40b51f4547c6490fcc4",
+    "title": "Recently opened apps",
+    "pageTextSchema": "cyclone-page-text-v1",
+    "pageText": [
+      "Apps",
+      "Navigate up",
+      "Recently opened apps",
+      "Pixel Weather",
+      "Cyclone",
+      "Telegram",
+      "See all 97 apps",
+      "General",
+      "Default apps",
+      "Chrome, Phone and Messages",
+      "Assistant",
+      "Hey Google and other Assistant settings",
+      "Screen time",
+      "Cloud media settings",
+      "Google Photos",
+      "Contacts storage"
+    ],
+    "pageSummarySchema": "cyclone-page-summary-v1",
+    "pageSummary": {
+      "title": "Recently opened apps",
+      "headings": ["Recently opened apps", "Cyclone", "Pixel Weather"],
+      "buttons": ["Navigate up"],
+      "scrollableRegions": 2,
+      "interactiveCount": 12,
+      "controlCount": 3,
+      "textLineCount": 20
+    },
+    "counts": { "raw": 39, "semantic": 3, "agent": 3 },
+    "controls": [
+      {
+        "label": "content parent",
+        "role": "scroll_container",
+        "resourceId": "com.android.settings:id/content_parent",
+        "clickable": false
+      },
+      {
+        "label": "Navigate up",
+        "role": "button",
+        "contentDescription": "Navigate up",
+        "clickable": true
+      },
+      {
+        "label": "recycler view",
+        "role": "scroll_container",
+        "resourceId": "com.android.settings:id/recycler_view",
+        "clickable": false
+      }
+    ]
+  }
+}

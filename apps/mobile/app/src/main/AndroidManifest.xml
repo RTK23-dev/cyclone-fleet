@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="moe.shizuku.manager.permission.API_V23" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
+    <!-- Plan 29 (direct first): add events and look up contacts without opening any app. Asked for when first needed. -->
+    <uses-permission android:name="android.permission.WRITE_CALENDAR" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <!-- Plan 49: fill a code sent by text to this phone's own number (read in memory, never stored). -->
+    <uses-permission android:name="android.permission.READ_SMS" />
+    <uses-permission android:name="android.permission.READ_PHONE_NUMBERS" />
+    <uses-feature android:name="android.hardware.telephony" android:required="false" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <!-- AlarmClock intents (phone.set_alarm / phone.set_timer): the clock app creates and shows it. -->
+    <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <!-- Cyclone Mind: a bounded partial wake lock so a model call finishes if the screen turns off mid-mission. -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
+    <!-- Drive (plan 32): the microphone service runs only while Cyclone listens after a tap. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+
+    <queries>
+        <package android:name="moe.shizuku.privileged.api" />
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+        <!-- Drive (alpha.72): Android's speech recognizer. Without this query Android 11+ hides it from Cyclone, so
+             on-device speech to text and the fallback for a silenced microphone could never find it. -->
+        <intent>
+            <action android:name="android.speech.RecognitionService" />
+        </intent>
+        <!-- Plan 29: which clock app takes a direct timer, to confirm it by its running-timer notification. -->
+        <intent>
+            <action android:name="android.intent.action.SET_TIMER" />
+        </intent>
+        <!-- The home screen app, so the working status never shows the launcher as the app Cyclone works in. -->
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.HOME" />
+        </intent>
+    </queries>
+
+    <uses-permission android:name="android.permission.POST_PROMOTED_NOTIFICATIONS" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:label="Cyclone"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity
+            android:name=".direct.DirectAccessActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
+        <meta-data
+            android:name="com.google.mlkit.vision.DEPENDENCIES"
+            android:value="barcode_ui" />
+
+        <provider android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.setup-helper" android:exported="false" android:grantUriPermissions="true">
+            <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/setup_helper_paths" />
+        </provider>
+
+        <provider
+            android:name=".gateway.GatewayInitProvider"
+            android:authorities="${applicationId}.gateway-init"
+            android:exported="false"
+            android:initOrder="100" />
+
+        <provider
+            android:name="rikka.shizuku.ShizukuProvider"
+            android:authorities="${applicationId}.shizuku"
+            android:exported="true"
+            android:multiprocess="false"
+            android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
+
+        <service android:name=".runtime.workspaces.ProfileBootstrapService" android:exported="false" android:foregroundServiceType="specialUse">
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE" android:value="User-requested secure profile configuration transfer" />
+        </service>
+
+        <activity android:name=".ui.ProfileRescueActivity" android:exported="false" />
+        <activity android:name=".ui.overlay.OverlayAttachmentActivity" android:exported="false" />
+        <activity android:name=".ui.overlay.CycloneAiSettingsActivity" android:exported="false" />
+        <!-- Plan 32: the short film that plays when Driver mode is turned on. Dark from the first frame, no recents entry. -->
+        <activity android:name=".ui.overlay.DriveIntroActivity" android:exported="false" android:excludeFromRecents="true"
+            android:theme="@android:style/Theme.Material.NoActionBar" />
+        <activity android:name=".runtime.background.WorkspaceProgressActivity" android:exported="false" />
+        <activity android:name=".runtime.background.BackgroundSetupActivity" android:exported="false" />
+        <activity android:name=".runtime.background.WorkspaceActivity" android:exported="false" />
+        <!-- Exported only so Cyclone One can open the dedicated viewer through an authorized ADB shell.
+             The stream URL is fixed to the local reverse tunnel; per-target ephemeral credentials travel
+             separately as intent extras and authenticated WebSocket headers, never in the URL. -->
+        <activity
+            android:name=".stream.CameraStreamViewerActivity"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:theme="@style/AppTheme" />
+        <service
+            android:name=".runtime.background.WorkspaceTaskService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="User-requested isolated app task with visible pause, stop and human handoff controls" />
+        </service>
+        <!-- Task Kit: notification buttons for foreground tasks. Not exported. -->
+        <receiver android:name=".task.TaskCommandReceiver" android:exported="false" />
+        <!-- Alpha 88: the PC wakes a stopped Cyclone over adb; DUMP keeps every ordinary app out. -->
+        <receiver
+            android:name=".gateway.GatewayWakeReceiver"
+            android:exported="true"
+            android:permission="android.permission.DUMP">
+            <intent-filter>
+                <action android:name="com.cyclone.mobile.action.WAKE_GATEWAY" />
+            </intent-filter>
+        </receiver>
+        <service
+            android:name=".mind.mission.MindMissionService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="User-requested Cyclone Mind mission with visible progress, stop and approval controls" />
+        </service>
+        <service
+            android:name=".mapping.run.MappingNotificationService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="User-started app mapping with a visible stop control" />
+        </service>
+        <activity android:name=".capture.LiveCaptureConsentActivity" android:exported="false" />
+        <service
+            android:name=".capture.LiveCaptureService"
+            android:exported="false"
+            android:foregroundServiceType="mediaProjection" />
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="cyclone" android:host="pair" />
+            </intent-filter>
+            <!-- The Android Assistant role can route the system-owned assistant gesture here.
+                 Cyclone never intercepts KEYCODE_POWER directly. -->
+            <intent-filter>
+                <action android:name="android.intent.action.ASSIST" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".gateway.GatewaySettingsActivity"
+            android:exported="false"
+            android:label="Cyclone PC Gateway" />
+
+        <activity
+            android:name=".guided.RoutineTeachingHistoryActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ai.TaskResultActivityV292"
+            android:exported="false" />
+
+        <activity
+            android:name=".debug.PageDebugSandboxActivityV293"
+            android:exported="false" />
+
+        <receiver
+            android:name=".automation.AutomationAlarmReceiver"
+            android:exported="false" />
+
+        <service
+            android:name=".CycloneAccessibilityService"
+            android:exported="true"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
+        </service>
+
+        <service
+            android:name=".CycloneNotificationListener"
+            android:exported="true"
+            android:label="Cyclone notification listener"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+    <receiver android:name=".gateway.LivePhoneControlReceiver" android:exported="false" />
+    <!-- Plan 26: background work that stays on (boot check) and its Quick Settings tile. -->
+    <!-- Plan 27: the task notification's Show brings the overlay island back. -->
+    <receiver android:name=".ui.overlay.OverlayShowReceiver" android:exported="false">
+      <intent-filter>
+        <action android:name="com.cyclone.mobile.action.SHOW_OVERLAY" />
+      </intent-filter>
+    </receiver>
+    <receiver android:name=".runtime.plane.BackgroundBootReceiver" android:exported="false">
+        <intent-filter>
+            <action android:name="android.intent.action.BOOT_COMPLETED" />
+            <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+        </intent-filter>
+    </receiver>
+    <!-- Drive (plan 32): listening only after the owner taps the AI button; stopped as soon as the request is heard. -->
+    <service
+        android:name=".voice.VoiceService"
+        android:exported="false"
+        android:foregroundServiceType="microphone" />
+    <service
+        android:name=".voice.DriverTile"
+        android:exported="true"
+        android:icon="@drawable/ic_cyclone_status"
+        android:label="Cyclone Drive"
+        android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+        <intent-filter>
+            <action android:name="android.service.quicksettings.action.QS_TILE" />
+        </intent-filter>
+        <meta-data android:name="android.service.quicksettings.TOGGLEABLE_TILE" android:value="true" />
+    </service>
+    <service
+        android:name=".runtime.plane.CycloneBackgroundTile"
+        android:exported="true"
+        android:icon="@drawable/ic_cyclone_status"
+        android:label="Cyclone background"
+        android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+        <intent-filter>
+            <action android:name="android.service.quicksettings.action.QS_TILE" />
+        </intent-filter>
+        <meta-data android:name="android.service.quicksettings.TOGGLEABLE_TILE" android:value="true" />
+    </service>
+    </application>
+</manifest>

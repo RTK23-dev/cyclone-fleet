@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "python": "3.13.7",
+  "pyinstaller": "6.22.2",
+  "mcp": "2.0.0",
+  "websockets": "15.0.1",
+  "sidecars": [
+    {
+      "name": "CyclonePCRuntime.exe",
+      "spec": "packaging/pc-companion/pyinstaller/CyclonePCRuntime.spec"
+    },
+    {
+      "name": "CycloneAgentMCP.exe",
+      "spec": "packaging/pc-companion/pyinstaller/CycloneAgentMCP.spec"
+    },
+    {
+      "name": "CycloneLivePhone.exe",
+      "spec": "packaging/pc-companion/pyinstaller/CycloneLivePhone.spec"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "schema": "cyclone-golden-page-v1",
+  "synthetic": true,
+  "pixelCapture": false,
+  "source": "synthetic-json-fixture",
+  "note": "Synthetic page-card fixture for V4 slice 5. Not a Pixel 8 capture. Physical locate remains UNVERIFIED.",
+  "goal": "See all apps",
+  "expectedTarget": {
+    "elementId": "see-all-apps",
+    "label": "See all apps",
+    "resourceId": "com.android.settings:id/see_all_button"
+  },
+  "observation": {
+    "package": "com.android.settings",
+    "activity": "com.android.settings.Settings$AppManagementSettingsActivity",
+    "pageKey": "settings::apps",
+    "title": "Apps",
+    "pageText": "Apps. Recently opened apps. See all apps. Default apps. Special app access. Unused apps.",
+    "pageSummary": "Settings Apps hub with a See all apps control.",
+    "counts": { "raw": 176, "semantic": 14, "agent": 10 },
+    "lastTransition": { "fromPageKey": "settings::root", "toPageKey": "settings::apps", "via": "click", "label": "Apps" },
+    "routeHints": [{ "pageKey": "settings::all-apps", "confidence": 0.88, "freshness": "SYNTHETIC", "action": { "tool": "phone.click", "label": "See all apps" } }],
+    "controls": [
+      { "id": "recent-chrome", "label": "Chrome", "role": "button", "clickable": true, "actions": ["click"] },
+      { "id": "recent-messages", "label": "Messages", "role": "button", "clickable": true, "actions": ["click"] },
+      { "id": "default-apps", "label": "Default apps", "role": "button", "clickable": true, "actions": ["click"] },
+      { "id": "see-all-apps", "label": "See all apps", "role": "button", "resourceId": "com.android.settings:id/see_all_button", "clickable": true, "actions": ["click"] },
+      { "id": "special-access", "label": "Special app access", "role": "button", "clickable": true, "actions": ["click"] },
+      { "id": "unused-apps", "label": "Unused apps", "role": "button", "clickable": true, "actions": ["click"] }
+    ],
+    "pageTextSchema": "cyclone-page-text-v1",
+    "pageSummarySchema": "cyclone-page-summary-v1"
+  }
+}

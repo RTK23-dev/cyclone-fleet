@@ -1,0 +1,3 @@
+import test from"node:test";import assert from"node:assert/strict";import{fleetColumnCount,computeVirtualRange}from"../.test-dist/core/grid.js";
+test("responsive grid sizing follows fleet breakpoints",()=>{assert.equal(fleetColumnCount(1,1400),1);assert.equal(fleetColumnCount(2,1400),2);assert.equal(fleetColumnCount(4,1400),2);assert.equal(fleetColumnCount(6,1400),3);assert.equal(fleetColumnCount(8,1400),4);assert.equal(fleetColumnCount(12,1400),4)});
+test("large fleets use bounded virtual windows",()=>{const r=computeVirtualRange(40,4,2160,700,540,2);assert.ok(r.startIndex>0);assert.ok(r.endIndexExclusive<40);assert.ok(r.topSpacerPx>0);assert.ok(r.bottomSpacerPx>=0)});

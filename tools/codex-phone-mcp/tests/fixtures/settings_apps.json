@@ -1,0 +1,10 @@
+{
+  "device": {"serial": "MOCKPIXEL8", "model": "Pixel 8", "androidVersion": "16"},
+  "package": "com.android.settings",
+  "pageKey": "settings::apps",
+  "title": "Apps",
+  "rawNodeCount": 287,
+  "semanticControlCount": 24,
+  "agentControlCount": 24,
+  "controls": [{"id": "all-apps", "label": "See all apps", "role": "button", "clickable": true}]
+}

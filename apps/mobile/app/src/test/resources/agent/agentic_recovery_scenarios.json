@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Deterministic local-vs-PC recovery parity fixtures; no physical-device evidence is implied.",
+  "scenarios": [
+    {"id":"A_STALE_TARGET","expectedClassification":"RECOVERABLE","expectedRecovery":"GOAL_RANKED_SEARCH","notes":"stale e12 -> fresh locate -> new observation-scoped id"},
+    {"id":"B_CLICK_ACCEPTED_NOTHING_HAPPENS","expectedClassification":"RECOVERABLE","expectedRecovery":"CURRENT_SEMANTIC_PAGE","notes":"execution receipt is not verification or learning"},
+    {"id":"C_SAME_PAGE_REAL_PROGRESS","expectedClassification":"VERIFIED_PROGRESS","expectedRecovery":"","notes":"toggle/text/focus/selection can progress without pageKey change"},
+    {"id":"D_TARGET_NOT_IN_COMPACT_CONTROLS","expectedClassification":"RECOVERABLE","expectedRecovery":"GOAL_RANKED_SEARCH","notes":"search supplemental controls before vision"},
+    {"id":"E_STRUCTURED_DATA_INSUFFICIENT","expectedClassification":"RECOVERABLE","expectedRecovery":"SILENT_SCREENSHOT_VISION","notes":"bounded silent screenshot only after structured evidence is insufficient"},
+    {"id":"F_WRONG_BRANCH","expectedClassification":"REGRESSION","expectedRecovery":"BACKTRACK_OR_REPLAN","notes":"backtrack and choose alternate route"},
+    {"id":"G_MODEL_SAYS_BLOCKED_INCORRECTLY","expectedClassification":"RECOVERABLE","expectedRecovery":"GOAL_RANKED_SEARCH","notes":"model blocked is advisory, not blocker evidence"},
+    {"id":"H_MALFORMED_MODEL_OUTPUT","expectedClassification":"RECOVERABLE","expectedRecovery":"CURRENT_SEMANTIC_PAGE","notes":"bounded format recovery, not immediate task failure"},
+    {"id":"I_LONG_SUCCESSFUL_TASK","expectedClassification":"VERIFIED_PROGRESS","expectedRecovery":"","notes":"more than six cycles are allowed when progress is verified"},
+    {"id":"J_TRUE_GATE","expectedClassification":"HUMAN_OR_GATE","expectedRecovery":"HUMAN_GATE","notes":"authentication/payment/consequential boundary suspends safely"}
+  ]
+}

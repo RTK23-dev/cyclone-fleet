@@ -1,0 +1,185 @@
+name: Cyclone Mobile Release Signing
+
+on:
+  workflow_call:
+    inputs:
+      build_run_id:
+        description: Successful Cyclone Mobile CI run ID to reuse
+        required: true
+        type: string
+      artifact_name:
+        description: Exact unsigned artifact name reported by that run
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      build_run_id:
+        description: Successful Cyclone Mobile CI run ID to reuse
+        required: true
+        type: string
+      artifact_name:
+        description: Exact unsigned artifact name reported by that run
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: mobile-release-${{ inputs.build_run_id }}
+  cancel-in-progress: false
+
+jobs:
+  sign-candidate:
+    environment: mobile-release-approval
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate successful release-branch source build
+        id: source
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BUILD_RUN_ID: ${{ inputs.build_run_id }}
+        run: |
+          set -euo pipefail
+          [[ "$BUILD_RUN_ID" =~ ^[0-9]+$ ]]
+          run_json="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$BUILD_RUN_ID")"
+          test "$(jq -r '.name' <<< "$run_json")" = "Cyclone Mobile CI"
+          test "$(jq -r '.path' <<< "$run_json")" = ".github/workflows/mobile-ci.yml"
+          test "$(jq -r '.conclusion' <<< "$run_json")" = "success"
+          test "$(jq -r '.event' <<< "$run_json")" = "push"
+          test "$(jq -r '.head_repository.full_name' <<< "$run_json")" = "$GITHUB_REPOSITORY"
+          head_branch="$(jq -r '.head_branch' <<< "$run_json")"
+          case "$head_branch" in
+            release/cyclone-mobile-v*) ;;
+            *) echo "Untrusted release source branch: $head_branch" >&2; exit 1 ;;
+          esac
+          head_sha="$(jq -r '.head_sha' <<< "$run_json")"
+          [[ "$head_sha" =~ ^[0-9a-f]{40}$ ]]
+          printf 'head_sha=%s\n' "$head_sha" >> "$GITHUB_OUTPUT"
+
+      - name: Download authoritative unsigned CI artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: ${{ inputs.artifact_name }}
+          run-id: ${{ inputs.build_run_id }}
+          github-token: ${{ github.token }}
+          path: candidate
+
+      - name: Verify checksum and provenance
+        id: candidate
+        shell: bash
+        env:
+          EXPECTED_HEAD_SHA: ${{ steps.source.outputs.head_sha }}
+          EXPECTED_RUN_ID: ${{ inputs.build_run_id }}
+          EXPECTED_ARTIFACT_NAME: ${{ inputs.artifact_name }}
+        run: |
+          set -euo pipefail
+          test -s candidate/source-sha.txt
+          test -s candidate/run-id.txt
+          test -s candidate/mobile-metadata.json
+          test -s candidate/signing-state.txt
+          test "$(tr -d '\r\n' < candidate/source-sha.txt)" = "$EXPECTED_HEAD_SHA"
+          test "$(tr -d '\r\n' < candidate/run-id.txt)" = "$EXPECTED_RUN_ID"
+          test "$(tr -d '\r\n' < candidate/signing-state.txt)" = "UNSIGNED_VERIFIED_CANDIDATE"
+          apk_name="$(python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          root = Path('candidate')
+          metadata = json.loads((root / 'mobile-metadata.json').read_text())
+          assert metadata['artifact_name'] == os.environ['EXPECTED_ARTIFACT_NAME']
+          assert metadata['application_id'] == 'com.cyclone.mobile'
+          apk = root / metadata['apk_name']
+          assert apk.is_file(), f'missing Cyclone APK: {apk.name}'
+          assert len(list(root.glob('*.apk'))) == 1
+          print(metadata['apk_name'])
+          PY
+          )"
+          (cd candidate && sha256sum --check ./*.apk.sha256)
+          printf 'apk_name=%s\n' "$apk_name" >> "$GITHUB_OUTPUT"
+
+      - name: Validate protected Android signing secrets
+        shell: bash
+        env:
+          CYCLONE_KEYSTORE_B64: ${{ secrets.CYCLONE_ANDROID_KEYSTORE_B64 }}
+          CYCLONE_STORE_PASSWORD: ${{ secrets.CYCLONE_ANDROID_STORE_PASSWORD }}
+          CYCLONE_KEY_ALIAS: ${{ secrets.CYCLONE_ANDROID_KEY_ALIAS }}
+          CYCLONE_KEY_PASSWORD: ${{ secrets.CYCLONE_ANDROID_KEY_PASSWORD }}
+          CYCLONE_SIGNING_LINEAGE_B64: ${{ secrets.CYCLONE_ANDROID_SIGNING_LINEAGE_B64 }}
+        run: |
+          set -euo pipefail
+          missing=()
+          test -n "$CYCLONE_KEYSTORE_B64" || missing+=(CYCLONE_ANDROID_KEYSTORE_B64)
+          test -n "$CYCLONE_STORE_PASSWORD" || missing+=(CYCLONE_ANDROID_STORE_PASSWORD)
+          test -n "$CYCLONE_KEY_ALIAS" || missing+=(CYCLONE_ANDROID_KEY_ALIAS)
+          test -n "$CYCLONE_KEY_PASSWORD" || missing+=(CYCLONE_ANDROID_KEY_PASSWORD)
+          test -n "$CYCLONE_SIGNING_LINEAGE_B64" || missing+=(CYCLONE_ANDROID_SIGNING_LINEAGE_B64)
+          if ((${#missing[@]})); then
+            printf 'ERROR: mobile-release-approval is missing required protected secret: %s\n' "${missing[@]}" >&2
+            exit 1
+          fi
+          echo 'Protected Android signing inputs are configured.'
+
+      - name: Set up Android SDK signing tools
+        uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3
+        with:
+          packages: platform-tools
+
+      - name: Install Android build tools
+        shell: bash
+        run: sdkmanager --install 'build-tools;35.0.0'
+
+      - name: Sign verified candidate with rotated key
+        shell: bash
+        env:
+          APK_NAME: ${{ steps.candidate.outputs.apk_name }}
+          CYCLONE_KEYSTORE_B64: ${{ secrets.CYCLONE_ANDROID_KEYSTORE_B64 }}
+          CYCLONE_STORE_PASSWORD: ${{ secrets.CYCLONE_ANDROID_STORE_PASSWORD }}
+          CYCLONE_KEY_ALIAS: ${{ secrets.CYCLONE_ANDROID_KEY_ALIAS }}
+          CYCLONE_KEY_PASSWORD: ${{ secrets.CYCLONE_ANDROID_KEY_PASSWORD }}
+          CYCLONE_SIGNING_LINEAGE_B64: ${{ secrets.CYCLONE_ANDROID_SIGNING_LINEAGE_B64 }}
+        run: |
+          set -euo pipefail
+          mkdir -p signed
+          keystore="$RUNNER_TEMP/cyclone-release.keystore"
+          lineage="$RUNNER_TEMP/cyclone-signing-lineage"
+          printf '%s' "$CYCLONE_KEYSTORE_B64" | base64 --decode > "$keystore"
+          printf '%s' "$CYCLONE_SIGNING_LINEAGE_B64" | base64 --decode > "$lineage"
+          chmod 600 "$keystore" "$lineage"
+          apksigner="$ANDROID_SDK_ROOT/build-tools/35.0.0/apksigner"
+          "$apksigner" lineage --in "$lineage" --print-certs -v
+          "$apksigner" sign \
+            --ks "$keystore" \
+            --ks-key-alias "$CYCLONE_KEY_ALIAS" \
+            --ks-pass env:CYCLONE_STORE_PASSWORD \
+            --key-pass env:CYCLONE_KEY_PASSWORD \
+            --lineage "$lineage" \
+            --rotation-min-sdk-version 33 \
+            --v1-signing-enabled false \
+            --v2-signing-enabled false \
+            --v3-signing-enabled true \
+            --out "signed/$APK_NAME" \
+            "candidate/$APK_NAME"
+          # Mobile supports API 33; verify the entire supported install range.
+          "$apksigner" verify --min-sdk-version 33 --verbose --print-certs "signed/$APK_NAME"
+          # `lineage --in` accepts a proof-of-rotation file, not a signed APK.
+          cp "$lineage" signed/signing-lineage.bin
+          "$apksigner" lineage --in signed/signing-lineage.bin --print-certs -v > signed/signing-lineage.txt
+          (cd signed && sha256sum "$APK_NAME" > "$APK_NAME.sha256")
+          cp candidate/source-sha.txt candidate/run-id.txt candidate/mobile-metadata.json signed/
+          printf '%s\n' 'SIGNED_PROTECTED_ENVIRONMENT_ROTATED' > signed/signing-state.txt
+
+      - name: Destroy temporary signing material
+        if: always()
+        shell: bash
+        run: |
+          rm -f "$RUNNER_TEMP/cyclone-release.keystore" "$RUNNER_TEMP/cyclone-signing-lineage"
+
+      - name: Upload signed release artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ${{ inputs.artifact_name }}-signed
+          path: signed/
+          if-no-files-found: error
+          retention-days: 30

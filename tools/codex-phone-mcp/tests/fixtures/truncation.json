@@ -1,0 +1,10 @@
+{
+  "package": "com.example",
+  "pageKey": "example::root",
+  "title": "Example",
+  "rawNodeCount": 500,
+  "semanticControlCount": 52,
+  "agentControlCount": 36,
+  "controls": [{"id": "first", "label": "Unrelated", "clickable": true}],
+  "debug": {"stage": "AGENT_CONTEXT_TRUNCATION", "expected": "Apps", "rawHit": true, "semanticHit": true, "agentHit": false}
+}

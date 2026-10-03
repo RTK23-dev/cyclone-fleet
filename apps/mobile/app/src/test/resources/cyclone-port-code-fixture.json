@@ -1,0 +1,6 @@
+{
+  "leaseId": "ls_portcode0000000",
+  "enc": "BC1WKmF+nfsEN9ZhOgOG+7nCQY6OiVfU16n9exUYiDJ6OOzX2baxZnRthbl0+4prn9K6s4uaQO3bYAijgNB4bM8=",
+  "ct": "ZiWGuPOtmilmfGhyUU8ylwNm3q53wg==",
+  "aad": "{\"deviceKey\":\"FIXTURE\",\"expiresAt\":1800000300000,\"leaseId\":\"ls_portcode0000000\",\"place\":\"package:com.example.shop\",\"runId\":\"mabcdefgh\",\"slot\":\"code\"}"
+}

@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cyclone-ports-sdk"
+version = "0.1.0"
+description = "SDK, Dev Hub and conformance checker for Cyclone Run Ports plugins (contract cyclone.ports/1)"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+test = ["pytest>=7"]
+
+[project.scripts]
+cyclone-devhub = "cyclone_ports.devhub:main"
+cyclone-ports-check = "cyclone_ports.conformance:main"
+
+[tool.setuptools]
+packages = ["cyclone_ports"]

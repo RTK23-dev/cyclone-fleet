@@ -1,0 +1,58 @@
+# Local environment and secrets
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.keystore.b64
+secrets/
+# The phone's secrets code package (source, not secrets) stays tracked.
+!apps/mobile/app/src/main/java/com/cyclone/mobile/secrets/
+!apps/mobile/app/src/test/java/com/cyclone/mobile/secrets/
+
+# Python / test artifacts
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.coverage
+coverage/
+
+# Build / runtime output
+build/
+dist/
+target/
+artifacts/
+logs/
+data/
+.runtime/
+
+# Node / frontend
+node_modules/
+.vite/
+*.tsbuildinfo
+
+# Android / Gradle
+.gradle/
+apps/mobile/**/build/
+apps/mobile/.kotlin/
+apps/mobile/local.properties
+apps/device-gateway/third_party/scrcpy/scrcpy-server-v4.0
+
+# PC Companion generated binaries
+apps/pc-companion/src-tauri/binaries/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Test/report output
+playwright-report/
+test-results/
+.cyclone/agent-runs/

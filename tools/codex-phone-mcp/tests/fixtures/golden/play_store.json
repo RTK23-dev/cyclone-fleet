@@ -1,0 +1,34 @@
+{
+  "schema": "cyclone-golden-page-v1",
+  "synthetic": true,
+  "pixelCapture": false,
+  "source": "synthetic-json-fixture",
+  "note": "Synthetic page-card fixture for V4 slice 5. Not a Pixel 8 capture. Physical locate remains UNVERIFIED.",
+  "goal": "Search Google Play",
+  "expectedTarget": {
+    "elementId": "play-search",
+    "label": "Search Google Play",
+    "resourceId": "com.android.vending:id/search_bar"
+  },
+  "observation": {
+    "package": "com.android.vending",
+    "activity": "com.android.vending.AssetBrowserActivity",
+    "pageKey": "play::home",
+    "title": "Google Play",
+    "pageText": "Google Play. Search Google Play. Games. Apps. Movies. Books. Recommended for you.",
+    "pageSummary": "Play Store home with Search Google Play bar.",
+    "counts": { "raw": 240, "semantic": 16, "agent": 11 },
+    "lastTransition": { "fromPageKey": "pixel_launcher::home", "toPageKey": "play::home", "via": "click", "label": "Play Store" },
+    "routeHints": [{ "pageKey": "play::search", "confidence": 0.87, "freshness": "SYNTHETIC", "action": { "tool": "phone.click", "label": "Search Google Play" } }],
+    "controls": [
+      { "id": "games-tab", "label": "Games", "role": "tab", "clickable": true, "actions": ["click"] },
+      { "id": "apps-tab", "label": "Apps", "role": "tab", "clickable": true, "actions": ["click"] },
+      { "id": "movies-tab", "label": "Movies", "role": "tab", "clickable": true, "actions": ["click"] },
+      { "id": "play-search", "label": "Search Google Play", "role": "edittext", "resourceId": "com.android.vending:id/search_bar", "editable": true, "clickable": true, "actions": ["click"] },
+      { "id": "profile", "label": "Account", "role": "button", "clickable": true, "actions": ["click"] },
+      { "id": "recommended", "label": "Recommended for you", "role": "header", "clickable": false, "actions": [] }
+    ],
+    "pageTextSchema": "cyclone-page-text-v1",
+    "pageSummarySchema": "cyclone-page-summary-v1"
+  }
+}

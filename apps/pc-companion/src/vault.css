@@ -1,0 +1,129 @@
+.vault-source-note,
+.vault-privacy {
+  margin: 0;
+  color: #a5a1b5;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.vault-slot-list,
+.vault-request-host {
+  display: grid;
+  gap: 10px;
+}
+
+.vault-slot-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 18px;
+  border: 1px solid rgba(255, 255, 255, .09);
+  border-radius: 16px;
+  background: linear-gradient(145deg, rgba(21, 22, 31, .96), rgba(12, 13, 19, .96));
+}
+
+.vault-slot-request {
+  cursor: pointer;
+}
+
+.vault-slot-request:hover,
+.vault-slot-request:focus-visible {
+  border-color: rgba(240, 180, 90, .35);
+  outline: none;
+}
+
+.vault-slot-label {
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.vault-slot-pill {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 740;
+  letter-spacing: .02em;
+}
+
+.vault-slot-set {
+  background: rgba(85, 217, 138, .14);
+  color: #9fe7c0;
+}
+
+.vault-slot-missing {
+  background: rgba(240, 180, 90, .16);
+  color: #f0b45a;
+}
+
+.vault-slot-action {
+  font-size: 11px;
+  font-weight: 720;
+  color: #f0b45a;
+  letter-spacing: .02em;
+  white-space: nowrap;
+}
+
+.vault-empty {
+  padding: 28px 16px;
+  border: 1px dashed rgba(255, 255, 255, .12);
+  border-radius: 16px;
+  color: #a5a1b5;
+  text-align: center;
+}
+
+.vault-loading {
+  border-style: solid;
+  border-color: rgba(196, 181, 253, .18);
+}
+
+.secrets-card-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 720;
+}
+
+.secrets-card-kicker {
+  color: #f0b45a;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .14em;
+}
+
+.secrets-card {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid rgba(240, 180, 90, .28);
+  border-radius: 14px;
+  background: rgba(240, 180, 90, .08);
+}
+
+.secrets-card-privacy,
+.secrets-card-phone,
+.secrets-card-copy {
+  margin: 0;
+  color: #d9d3c4;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.secrets-card-presence {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.secrets-card-slot { font-size: 13px; font-weight: 650; }
+.secrets-card-state {
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 720;
+  text-transform: lowercase;
+}
+.secrets-card-state-waiting { background: rgba(240, 180, 90, .18); color: #f0b45a; }
+.secrets-card-state-missing { background: rgba(255, 107, 117, .14); color: #ff949c; }
+.secrets-card-state-set { background: rgba(85, 217, 138, .14); color: #9fe7c0; }

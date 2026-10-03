@@ -1,0 +1,221 @@
+.primary-nav { flex-wrap: wrap; }
+
+.ask-page,
+.vault-page,
+.maps-placeholder-page {
+  display: grid;
+  gap: 16px;
+  align-content: start;
+  max-width: 880px;
+}
+
+.ask-kicker,
+.vault-kicker {
+  margin-bottom: 8px;
+  color: #c4b5fd;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .16em;
+}
+
+.glass-compat-banner {
+  margin: 0 0 4px;
+  padding: 14px 16px;
+  border: 1px solid rgba(240, 180, 90, .28);
+  border-radius: 14px;
+  background: rgba(240, 180, 90, .08);
+}
+
+.glass-compat-title {
+  color: #f0b45a;
+  font-size: 13px;
+  font-weight: 720;
+}
+
+.glass-compat-copy {
+  margin: 4px 0 0;
+  color: var(--c-muted, #9698a2);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.ask-composer-card,
+.ask-hud,
+.ask-hud-empty,
+.maps-placeholder {
+  padding: 18px 20px;
+  border: 1px solid rgba(255, 255, 255, .09);
+  border-radius: 18px;
+  background: linear-gradient(145deg, rgba(21, 22, 31, .96), rgba(12, 13, 19, .96));
+}
+
+.ask-section-title,
+.ask-hud-title,
+.ask-hud-empty-title,
+.secrets-card-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 720;
+}
+
+.ask-composer-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: end;
+  margin-top: 12px;
+}
+
+.ask-composer-input {
+  min-height: 84px;
+  width: 100%;
+  resize: vertical;
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 12px;
+  outline: none;
+  padding: 10px 12px;
+  background: #0d0e14;
+  color: #f4f2fb;
+  font: inherit;
+}
+
+.ask-composer-input:focus {
+  border-color: rgba(144, 118, 255, .8);
+  box-shadow: 0 0 0 3px rgba(118, 89, 255, .12);
+}
+
+.ask-form-status,
+.ask-footnote,
+.ask-hud-copy,
+.ask-hud-session,
+.ask-hud-empty-copy,
+.ask-demo-copy,
+.ask-hud-failed-note {
+  margin: 10px 0 0;
+  color: #a5a1b5;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.ask-hud-host { min-height: 160px; }
+
+.ask-hud { display: grid; gap: 10px; }
+.ask-hud-needs-secret { border-color: rgba(240, 180, 90, .35); }
+.ask-hud-failed { border-color: rgba(255, 107, 117, .35); }
+.ask-hud-done { border-color: rgba(85, 217, 138, .28); }
+
+.ask-hud-kicker,
+.secrets-card-kicker {
+  color: #c4b5fd;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .14em;
+}
+
+.ask-hud-needs-secret .ask-hud-kicker,
+.secrets-card-kicker { color: #f0b45a; }
+.ask-hud-failed .ask-hud-kicker { color: #ff949c; }
+.ask-hud-done .ask-hud-kicker { color: #55d98a; }
+
+.ask-milestones {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 6px;
+  color: #d7d3e6;
+  font-size: 13px;
+}
+
+.ask-milestone-done { color: #9fe7c0; }
+.ask-milestone-action-needed { color: #f0b45a; }
+.ask-milestone-failed { color: #ff949c; }
+
+.ask-session-plane {
+  margin: 8px 0 0;
+  color: #c4b5fd;
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: .04em;
+}
+
+.ask-hud-download {
+  justify-self: start;
+  margin-top: 4px;
+}
+
+.ask-sample-badge {
+  color: #f0b45a;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+
+.ask-demo-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.ask-demo-select {
+  min-height: 36px;
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 10px;
+  padding: 0 10px;
+  background: #12131a;
+  color: #f4f2fb;
+  font: inherit;
+}
+
+.secrets-card {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid rgba(240, 180, 90, .28);
+  border-radius: 14px;
+  background: rgba(240, 180, 90, .08);
+}
+
+.secrets-card-privacy,
+.secrets-card-phone,
+.secrets-card-copy {
+  margin: 0;
+  color: #d9d3c4;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.secrets-card-presence {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.secrets-card-slot { font-size: 13px; font-weight: 650; }
+.secrets-card-state {
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 720;
+  text-transform: lowercase;
+}
+.secrets-card-state-waiting { background: rgba(240, 180, 90, .18); color: #f0b45a; }
+.secrets-card-state-missing { background: rgba(255, 107, 117, .14); color: #ff949c; }
+.secrets-card-state-set { background: rgba(85, 217, 138, .14); color: #9fe7c0; }
+
+.maps-placeholder {
+  min-height: 240px;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  color: #d7d3e6;
+  font-size: 18px;
+  font-weight: 650;
+}
+
+@media (max-width: 720px) {
+  .ask-composer-form { grid-template-columns: 1fr; }
+}

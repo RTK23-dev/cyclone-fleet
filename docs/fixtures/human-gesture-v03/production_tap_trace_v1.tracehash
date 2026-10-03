@@ -1,0 +1,3 @@
+schema=cyclone.human_gesture.trace_hash.v1
+sha256=7a6f03e5084e2bc89bc17bedc5ca5f475bf53aae7e69eb4144441fd48c653d31
+trace=production_tap_trace_v1.json

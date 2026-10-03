@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <activity
+            android:name="com.cyclone.mobile.debug.HumanGestureTestActivity"
+            android:exported="true"
+            android:label="Human Gesture V0.3 Device Harness" />
+    </application>
+</manifest>

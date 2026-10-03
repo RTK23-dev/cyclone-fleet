@@ -1,0 +1,35 @@
+{
+  "schema": "cyclone-golden-page-v1",
+  "synthetic": true,
+  "pixelCapture": false,
+  "source": "synthetic-json-fixture",
+  "note": "Synthetic page-card fixture for V4 slice 5. Not a Pixel 8 capture. Physical locate remains UNVERIFIED.",
+  "goal": "Search or type web address",
+  "expectedTarget": {
+    "elementId": "omnibox",
+    "label": "Search or type web address",
+    "resourceId": "com.android.chrome:id/search_box_text"
+  },
+  "observation": {
+    "package": "com.android.chrome",
+    "activity": "com.google.android.apps.chrome.Main",
+    "pageKey": "chrome::ntp",
+    "title": "New tab",
+    "pageText": "Chrome. New tab. Search or type web address. Shortcuts: Gmail, YouTube, Drive. Most visited.",
+    "pageSummary": "Chrome blank new-tab page with omnibox.",
+    "counts": { "raw": 132, "semantic": 12, "agent": 9 },
+    "lastTransition": { "fromPageKey": "pixel_launcher::home", "toPageKey": "chrome::ntp", "via": "click", "label": "Chrome" },
+    "routeHints": [{ "pageKey": "chrome::search", "confidence": 0.82, "freshness": "SYNTHETIC", "action": { "tool": "phone.click", "label": "Search or type web address" } }],
+    "controls": [
+      { "id": "home", "label": "Home", "role": "button", "clickable": true, "actions": ["click"] },
+      { "id": "tabs", "label": "Tab switcher", "role": "button", "clickable": true, "actions": ["click"] },
+      { "id": "menu", "label": "More options", "role": "button", "clickable": true, "actions": ["click"] },
+      { "id": "omnibox", "label": "Search or type web address", "role": "edittext", "resourceId": "com.android.chrome:id/search_box_text", "editable": true, "clickable": true, "actions": ["click"] },
+      { "id": "voice", "label": "Voice search", "role": "button", "clickable": true, "actions": ["click"] },
+      { "id": "shortcut-gmail", "label": "Gmail", "role": "button", "clickable": true, "actions": ["click"] },
+      { "id": "shortcut-youtube", "label": "YouTube", "role": "button", "clickable": true, "actions": ["click"] }
+    ],
+    "pageTextSchema": "cyclone-page-text-v1",
+    "pageSummarySchema": "cyclone-page-summary-v1"
+  }
+}

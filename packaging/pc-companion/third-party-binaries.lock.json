@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "binaries": [
+    {
+      "name": "android-platform-tools",
+      "version": "37.0.1",
+      "official_source": "https://dl.google.com/android/repository/platform-tools_r37.0.1-win.zip",
+      "license": "Apache-2.0",
+      "sha256": "45f4d63113e895ebde0c90f194099a4676b6ac653bd28d54314a9e022bbc1a99",
+      "method": "Downloaded from Google's official repository during the Windows build, SHA-256 verified, and bundled under Cyclone One/android-platform-tools so operators do not need a separate ADB install."
+    },
+    {
+      "name": "scrcpy-server",
+      "version": "4.0",
+      "official_source": "https://github.com/Genymobile/scrcpy/releases/download/v4.0/scrcpy-server-v4.0",
+      "license": "Apache-2.0",
+      "sha256": "84924bd564a1eb6089c872c7521f968058977f91f5ff02514a8c74aff3210f3a",
+      "method": "Downloaded during the frozen sidecar build, checksum-verified, and embedded in CyclonePCRuntime.exe"
+    },
+    {
+      "name": "cloudflared",
+      "version": "2026.8.3",
+      "official_source": "https://github.com/cloudflare/cloudflared/releases/download/2026.8.3/cloudflared-windows-amd64.exe",
+      "license": "Apache-2.0",
+      "sha256": "83e726ed18ea78c5ad5213c4c3a3a27051393950d2bc8ed4de69bec12d14eaae",
+      "method": "Downloaded during the Windows sidecar build, checksum-verified, and bundled only for the Direct Live Phone HTTPS bridge"
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+name: Stage exact-CI Glass installer
+description: Download and verify the Windows installer built and installed by exact-source push CI
+inputs:
+  github_token:
+    description: Token with actions read permission
+    required: true
+  ci_run_id:
+    description: Successful PC Companion CI push run ID
+    required: true
+  source_sha:
+    description: Exact release source commit SHA
+    required: true
+  release_branch:
+    description: Branch that triggered PC Companion CI
+    required: true
+  glass_version:
+    description: Glass component version in release/version.toml
+    required: true
+  output_directory:
+    description: Empty directory to stage installer and provenance
+    required: true
+outputs:
+  installer-path:
+    description: Verified installer path
+    value: ${{ steps.verify.outputs.installer_path }}
+  installer-sha256:
+    description: SHA-256 of verified installer
+    value: ${{ steps.verify.outputs.installer_sha256 }}
+runs:
+  using: composite
+  steps:
+    - name: Verify successful exact-source Windows CI
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github_token }}
+        RUN_ID: ${{ inputs.ci_run_id }}
+        SOURCE_SHA: ${{ inputs.source_sha }}
+        RELEASE_BRANCH: ${{ inputs.release_branch }}
+      run: |
+        set -euo pipefail
+        [[ "$RUN_ID" =~ ^[0-9]+$ ]] || { echo 'Invalid CI run ID' >&2; exit 1; }
+        [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo 'Invalid source SHA' >&2; exit 1; }
+        [[ "$RELEASE_BRANCH" == release/* ]] || { echo 'Expected a release branch' >&2; exit 1; }
+        [[ "$(git rev-parse HEAD)" == "$SOURCE_SHA" && "$GITHUB_SHA" == "$SOURCE_SHA" ]] || { echo 'Release checkout does not match CI source SHA' >&2; exit 1; }
+        gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}" |
+          jq -e --arg sha "$SOURCE_SHA" --arg branch "$RELEASE_BRANCH" --arg repo "$GITHUB_REPOSITORY" \
+          '.name == "Cyclone PC Companion CI" and .path == ".github/workflows/pc-companion-ci.yml" and .event == "push" and .head_branch == $branch and .head_sha == $sha and .head_repository.full_name == $repo and .status == "completed" and .conclusion == "success"' >/dev/null
+    - name: Download exact-CI Glass artifact
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github_token }}
+        RUN_ID: ${{ inputs.ci_run_id }}
+        SOURCE_SHA: ${{ inputs.source_sha }}
+        STAGE_DIR: ${{ inputs.output_directory }}
+      run: |
+        set -euo pipefail
+        mkdir -p "$STAGE_DIR"
+        [[ -z "$(find "$STAGE_DIR" -mindepth 1 -maxdepth 1 -print -quit)" ]] || { echo 'Stage directory must be empty' >&2; exit 1; }
+        gh run download "$RUN_ID" --name "cyclone-pc-companion-${SOURCE_SHA}" --dir "$STAGE_DIR"
+    - name: Verify installer, install acceptance, and provenance
+      id: verify
+      shell: bash
+      env:
+        SOURCE_SHA: ${{ inputs.source_sha }}
+        GLASS_VERSION: ${{ inputs.glass_version }}
+        STAGE_DIR: ${{ inputs.output_directory }}
+      run: |
+        python scripts/pc-companion/verify-v5-release-artifact.py \
+          --artifact-dir "$STAGE_DIR" --source-sha "$SOURCE_SHA" \
+          --version "$GLASS_VERSION" --github-output "$GITHUB_OUTPUT"

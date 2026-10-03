@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cyclone.local/schemas/cyclone.ports/1/await.json",
+  "title": "Await request (hub -> plugin, POST /ports/{port}/await)",
+  "type": "object",
+  "required": [
+    "v",
+    "runId",
+    "port",
+    "awaitId",
+    "match",
+    "timeoutS",
+    "deliverUrl",
+    "token"
+  ],
+  "properties": {
+    "v": {
+      "const": 1
+    },
+    "runId": {
+      "type": "string"
+    },
+    "taskId": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "rowId": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "app": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "port": {
+      "anyOf": [
+        {
+          "enum": [
+            "file.in",
+            "value.in",
+            "code.in",
+            "link.in"
+          ]
+        },
+        {
+          "type": "string",
+          "pattern": "^x\\.[a-z][a-z0-9-]{1,40}\\.[a-z][a-z0-9-]{0,40}$"
+        }
+      ]
+    },
+    "awaitId": {
+      "type": "string",
+      "description": "May arrive twice (hub restart or retry): treat as the same wait."
+    },
+    "match": {
+      "type": "object",
+      "description": "Port-specific hints, e.g. code.in {from, pattern}; file.in {kind}. Ignore keys you don't know."
+    },
+    "timeoutS": {
+      "type": "number",
+      "maximum": 600
+    },
+    "sentAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "deliverUrl": {
+      "type": "string"
+    },
+    "token": {
+      "type": "string",
+      "description": "Single-use port token. Send as 'Authorization: Port <token>'. Never log it."
+    }
+  }
+}

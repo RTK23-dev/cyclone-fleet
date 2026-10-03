@@ -1,0 +1,29 @@
+# Cyclone V5 alpha.102 dev1: Numbers - one place in Glass for every number Cyclone can receive codes on (the fleet's SIMs, forwarded and rented numbers), each assigned to one account. Glass 1.0.0-alpha.57.
+# Owner-requested developer candidate; physical phone and Windows PC acceptance remain UNVERIFIED until tested.
+schema = 1
+product_version = "5.0.0-alpha.102.dev1"
+channel = "development"
+android_version_code = 247
+python_version = "5.0.0-alpha.102.dev1"
+
+[components]
+mobile = "5.0.0-alpha.102.dev1"
+# The retired Cyclone One desktop window (plan 31): source kept, no longer built. Cyclone for Windows ships as
+# Cyclone-PC-<product_version>.zip (runtime + Glass + the cyclone command).
+pc_companion = "1.6.0-alpha.43"
+# Cyclone Glass web app (apps/glass). Its own line.
+glass = "1.0.0-alpha.57"
+device_gateway = "5.0.0-alpha.102.dev1"
+mcp = "5.0.0-alpha.102.dev1"
+
+[release]
+previous_mobile_version = "4.8.0"
+# Publication is authorized only through the paired V5 publisher after signed
+# artifact provenance and separate named physical acceptance are verified.
+publication_authorized = true
+physical_pixel8 = "UNVERIFIED"
+physical_pixel8_ui_acceptance = "UNVERIFIED"
+android_signing = "ROTATED_UPDATE_COMPATIBLE_KEY_REQUIRED"
+windows_signing = "CI_UNSIGNED"
+windows_installer = "CI_UNSIGNED"
+candidate_generation = "cyclone-v5-alpha102-dev1-numbers"

@@ -1,0 +1,1065 @@
+[
+  {
+    "model": "meta/muse-spark-1.3",
+    "endpoints": [
+      {
+        "tag": "meta",
+        "provider": "Meta",
+        "status": 0,
+        "parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "repetition_penalty",
+          "top_k",
+          "temperature",
+          "top_p",
+          "tools",
+          "tool_choice",
+          "structured_outputs",
+          "response_format",
+          "reasoning_effort"
+        ]
+      }
+    ]
+  },
+  {
+    "model": "meta/muse-spark-1.3-contributor",
+    "endpoints": [
+      {
+        "tag": "meta",
+        "provider": "Meta",
+        "status": 0,
+        "parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "repetition_penalty",
+          "top_k",
+          "temperature",
+          "top_p",
+          "tools",
+          "tool_choice",
+          "structured_outputs",
+          "response_format",
+          "reasoning_effort"
+        ]
+      }
+    ]
+  },
+  {
+    "model": "openai/gpt-6-astra",
+    "endpoints": [
+      {
+        "tag": "openai/flex",
+        "provider": "OpenAI",
+        "status": 0,
+        "parameters": [
+          "reasoning",
+          "include_reasoning",
+          "seed",
+          "max_tokens",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "azure",
+        "provider": "Azure",
+        "status": 0,
+        "parameters": [
+          "max_completion_tokens",
+          "reasoning",
+          "include_reasoning",
+          "seed",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "openai",
+        "provider": "OpenAI",
+        "status": 0,
+        "parameters": [
+          "reasoning",
+          "include_reasoning",
+          "seed",
+          "max_tokens",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "azure/us",
+        "provider": "Azure",
+        "status": 0,
+        "parameters": [
+          "max_completion_tokens",
+          "reasoning",
+          "include_reasoning",
+          "seed",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "openai/fast",
+        "provider": "OpenAI",
+        "status": 0,
+        "parameters": [
+          "reasoning",
+          "include_reasoning",
+          "seed",
+          "max_tokens",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ]
+      }
+    ]
+  },
+  {
+    "model": "openai/gpt-5.6-sol",
+    "endpoints": [
+      {
+        "tag": "openai/flex",
+        "provider": "OpenAI",
+        "status": 0,
+        "parameters": [
+          "reasoning",
+          "include_reasoning",
+          "seed",
+          "max_tokens",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "openai",
+        "provider": "OpenAI",
+        "status": 0,
+        "parameters": [
+          "reasoning",
+          "include_reasoning",
+          "seed",
+          "max_tokens",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "openai/fast",
+        "provider": "OpenAI",
+        "status": 0,
+        "parameters": [
+          "reasoning",
+          "include_reasoning",
+          "seed",
+          "max_tokens",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "amazon-bedrock/us-east-1",
+        "provider": "Amazon Bedrock",
+        "status": 0,
+        "parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "azure",
+        "provider": "Azure",
+        "status": 0,
+        "parameters": [
+          "max_completion_tokens",
+          "reasoning",
+          "include_reasoning",
+          "seed",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "azure/us",
+        "provider": "Azure",
+        "status": 0,
+        "parameters": [
+          "max_completion_tokens",
+          "reasoning",
+          "include_reasoning",
+          "seed",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "azure/eu",
+        "provider": "Azure",
+        "status": 0,
+        "parameters": [
+          "max_completion_tokens",
+          "reasoning",
+          "include_reasoning",
+          "seed",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ]
+      }
+    ]
+  },
+  {
+    "model": "openai/gpt-5.6-luna",
+    "endpoints": [
+      {
+        "tag": "openai/flex",
+        "provider": "OpenAI",
+        "status": 0,
+        "parameters": [
+          "reasoning",
+          "include_reasoning",
+          "seed",
+          "max_tokens",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "azure",
+        "provider": "Azure",
+        "status": -2,
+        "parameters": [
+          "max_completion_tokens",
+          "reasoning",
+          "include_reasoning",
+          "seed",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "openai",
+        "provider": "OpenAI",
+        "status": 0,
+        "parameters": [
+          "reasoning",
+          "include_reasoning",
+          "seed",
+          "max_tokens",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "azure/us",
+        "provider": "Azure",
+        "status": -5,
+        "parameters": [
+          "max_completion_tokens",
+          "reasoning",
+          "include_reasoning",
+          "seed",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "amazon-bedrock/us-east-1",
+        "provider": "Amazon Bedrock",
+        "status": 0,
+        "parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "azure/eu",
+        "provider": "Azure",
+        "status": 0,
+        "parameters": [
+          "max_completion_tokens",
+          "reasoning",
+          "include_reasoning",
+          "seed",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "openai/fast",
+        "provider": "OpenAI",
+        "status": 0,
+        "parameters": [
+          "reasoning",
+          "include_reasoning",
+          "seed",
+          "max_tokens",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ]
+      }
+    ]
+  },
+  {
+    "model": "google/gemini-3.8-flash",
+    "endpoints": [
+      {
+        "tag": "google-ai-studio/flex",
+        "provider": "Google AI Studio",
+        "status": 0,
+        "parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "response_format",
+          "structured_outputs",
+          "tool_choice",
+          "tools",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "google-vertex/global/flex",
+        "provider": "Google",
+        "status": -2,
+        "parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "seed",
+          "response_format",
+          "stop",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "google-ai-studio",
+        "provider": "Google AI Studio",
+        "status": 0,
+        "parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "response_format",
+          "structured_outputs",
+          "tool_choice",
+          "tools",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "google-vertex/global",
+        "provider": "Google",
+        "status": 0,
+        "parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "seed",
+          "response_format",
+          "stop",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "google-ai-studio/priority",
+        "provider": "Google AI Studio",
+        "status": 0,
+        "parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "response_format",
+          "structured_outputs",
+          "tool_choice",
+          "tools",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "google-vertex/global/priority",
+        "provider": "Google",
+        "status": 0,
+        "parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "seed",
+          "response_format",
+          "stop",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ]
+      }
+    ]
+  },
+  {
+    "model": "z-ai/glm-5.3-flash",
+    "endpoints": [
+      {
+        "tag": "gmicloud/fp8",
+        "provider": "GMICloud",
+        "status": 0,
+        "parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "response_format",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "novita/fp8",
+        "provider": "Novita",
+        "status": 0,
+        "parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "seed",
+          "top_k",
+          "repetition_penalty",
+          "response_format",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "deepinfra/fp4",
+        "provider": "DeepInfra",
+        "status": 0,
+        "parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "repetition_penalty",
+          "top_k",
+          "seed",
+          "min_p",
+          "response_format",
+          "logit_bias",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "z-ai/fp8",
+        "provider": "Z.AI",
+        "status": 0,
+        "parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "tools",
+          "tool_choice",
+          "top_k",
+          "response_format",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "wafer",
+        "provider": "Wafer",
+        "status": 0,
+        "parameters": [
+          "reasoning",
+          "include_reasoning",
+          "temperature",
+          "top_p",
+          "top_k",
+          "min_p",
+          "frequency_penalty",
+          "presence_penalty",
+          "repetition_penalty",
+          "stop",
+          "seed",
+          "max_tokens",
+          "logit_bias",
+          "response_format",
+          "tools",
+          "tool_choice",
+          "structured_outputs",
+          "logprobs",
+          "top_logprobs",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "makora",
+        "provider": "Makora",
+        "status": 0,
+        "parameters": [
+          "reasoning",
+          "include_reasoning",
+          "temperature",
+          "top_p",
+          "top_k",
+          "frequency_penalty",
+          "presence_penalty",
+          "repetition_penalty",
+          "stop",
+          "max_tokens",
+          "seed",
+          "min_p",
+          "logit_bias",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "logprobs",
+          "top_logprobs",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "modal/fp8",
+        "provider": "Modal",
+        "status": 0,
+        "parameters": [
+          "reasoning",
+          "include_reasoning",
+          "temperature",
+          "top_p",
+          "stop",
+          "max_tokens",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "coreweave/fp8",
+        "provider": "CoreWeave",
+        "status": 0,
+        "parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "top_k",
+          "repetition_penalty",
+          "frequency_penalty",
+          "presence_penalty",
+          "stop",
+          "seed",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "logprobs",
+          "top_logprobs",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "sail-research/fp8",
+        "provider": "Sail Research",
+        "status": 0,
+        "parameters": [
+          "reasoning",
+          "include_reasoning",
+          "temperature",
+          "top_p",
+          "top_k",
+          "frequency_penalty",
+          "presence_penalty",
+          "stop",
+          "seed",
+          "max_tokens",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "streamlake",
+        "provider": "StreamLake",
+        "status": 0,
+        "parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "response_format",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "nextbit/fp8",
+        "provider": "NextBit",
+        "status": 0,
+        "parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "response_format",
+          "structured_outputs",
+          "repetition_penalty",
+          "seed",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "fireworks",
+        "provider": "Fireworks",
+        "status": 0,
+        "parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "top_k",
+          "repetition_penalty",
+          "logit_bias",
+          "logprobs",
+          "top_logprobs",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "friendli",
+        "provider": "Friendli",
+        "status": 0,
+        "parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "seed",
+          "top_k",
+          "min_p",
+          "repetition_penalty",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "siliconflow/fp8",
+        "provider": "SiliconFlow",
+        "status": 0,
+        "parameters": [
+          "reasoning",
+          "include_reasoning",
+          "temperature",
+          "top_p",
+          "top_k",
+          "frequency_penalty",
+          "max_tokens",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "digitalocean",
+        "provider": "DigitalOcean",
+        "status": 0,
+        "parameters": [
+          "reasoning",
+          "include_reasoning",
+          "temperature",
+          "top_p",
+          "max_tokens",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "logprobs",
+          "top_logprobs",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "together",
+        "provider": "Together",
+        "status": 0,
+        "parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "top_k",
+          "repetition_penalty",
+          "logit_bias",
+          "min_p",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "logprobs",
+          "top_logprobs",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "reka/fp8",
+        "provider": "Reka",
+        "status": 0,
+        "parameters": [
+          "reasoning",
+          "include_reasoning",
+          "temperature",
+          "top_p",
+          "top_k",
+          "max_tokens",
+          "stop",
+          "seed",
+          "frequency_penalty",
+          "presence_penalty",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "logprobs",
+          "top_logprobs",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "parasail/fp8",
+        "provider": "Parasail",
+        "status": -2,
+        "parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "frequency_penalty",
+          "presence_penalty",
+          "repetition_penalty",
+          "seed",
+          "stop",
+          "top_k",
+          "logit_bias",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "logprobs",
+          "top_logprobs",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "baseten/fp8",
+        "provider": "BaseTen",
+        "status": 0,
+        "parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "venice",
+        "provider": "Venice",
+        "status": 0,
+        "parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "top_k",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "io-net/fp8",
+        "provider": "Io Net",
+        "status": 0,
+        "parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "tools",
+          "tool_choice",
+          "logprobs",
+          "top_logprobs",
+          "seed",
+          "stop",
+          "min_p",
+          "top_k",
+          "top_p",
+          "presence_penalty",
+          "frequency_penalty",
+          "repetition_penalty",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "cloudflare",
+        "provider": "Cloudflare",
+        "status": 0,
+        "parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "top_k",
+          "seed",
+          "repetition_penalty",
+          "frequency_penalty",
+          "presence_penalty",
+          "min_p",
+          "stop",
+          "logit_bias",
+          "logprobs",
+          "top_logprobs",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "morph/fp8",
+        "provider": "Morph",
+        "status": -2,
+        "parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "stop",
+          "top_p",
+          "top_k",
+          "min_p",
+          "frequency_penalty",
+          "presence_penalty",
+          "repetition_penalty",
+          "seed",
+          "logit_bias",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "logprobs",
+          "top_logprobs",
+          "reasoning_effort"
+        ]
+      }
+    ]
+  },
+  {
+    "model": "anthropic/claude-fable-5.1",
+    "endpoints": [
+      {
+        "tag": "azure",
+        "provider": "Azure",
+        "status": 0,
+        "parameters": [
+          "reasoning",
+          "include_reasoning",
+          "structured_outputs",
+          "max_tokens",
+          "max_completion_tokens",
+          "tools",
+          "response_format",
+          "verbosity",
+          "stop",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "anthropic",
+        "provider": "Anthropic",
+        "status": 0,
+        "parameters": [
+          "max_tokens",
+          "stop",
+          "reasoning",
+          "include_reasoning",
+          "tools",
+          "structured_outputs",
+          "response_format",
+          "verbosity",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "amazon-bedrock",
+        "provider": "Amazon Bedrock",
+        "status": 0,
+        "parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "stop",
+          "tools",
+          "response_format",
+          "verbosity",
+          "structured_outputs",
+          "reasoning_effort"
+        ]
+      },
+      {
+        "tag": "google-vertex/global",
+        "provider": "Google",
+        "status": 0,
+        "parameters": [
+          "max_tokens",
+          "stop",
+          "reasoning",
+          "include_reasoning",
+          "tools",
+          "response_format",
+          "verbosity",
+          "reasoning_effort"
+        ]
+      }
+    ]
+  }
+]

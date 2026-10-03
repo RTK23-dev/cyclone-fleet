@@ -1,0 +1,35 @@
+{
+  "schema": "cyclone-golden-page-v1",
+  "synthetic": true,
+  "pixelCapture": false,
+  "source": "synthetic-json-fixture",
+  "note": "Synthetic page-card fixture for V4 slice 5. Not a Pixel 8 capture. Physical locate remains UNVERIFIED.",
+  "goal": "Send SMS",
+  "expectedTarget": {
+    "elementId": "send-sms",
+    "label": "Send SMS",
+    "resourceId": "com.google.android.apps.messaging:id/send_message_button_icon",
+    "contentDescription": "Send SMS"
+  },
+  "observation": {
+    "package": "com.google.android.apps.messaging",
+    "activity": "com.google.android.apps.messaging.ui.conversation.ConversationActivity",
+    "pageKey": "messages::thread",
+    "title": "Alex",
+    "pageText": "Messages. Conversation with Alex. Yesterday: Running late. Today: On my way. Text field. Send SMS.",
+    "pageSummary": "Messages thread with compose field and Send SMS.",
+    "counts": { "raw": 98, "semantic": 11, "agent": 8 },
+    "lastTransition": { "fromPageKey": "messages::inbox", "toPageKey": "messages::thread", "via": "click", "label": "Alex" },
+    "routeHints": [{ "pageKey": "messages::thread", "confidence": 0.8, "freshness": "SYNTHETIC", "action": { "tool": "phone.click", "label": "Send SMS" } }],
+    "controls": [
+      { "id": "back", "label": "Navigate up", "role": "button", "resourceId": "com.google.android.apps.messaging:id/back", "clickable": true, "actions": ["click"] },
+      { "id": "contact", "label": "Alex", "role": "text", "clickable": true, "actions": ["click"] },
+      { "id": "attach", "label": "Add attachment", "role": "button", "clickable": true, "actions": ["click"] },
+      { "id": "compose", "label": "Text message", "role": "edittext", "resourceId": "com.google.android.apps.messaging:id/compose_message_text", "editable": true, "clickable": true, "actions": ["click"] },
+      { "id": "emoji", "label": "Emoji", "role": "button", "clickable": true, "actions": ["click"] },
+      { "id": "send-sms", "label": "Send SMS", "contentDescription": "Send SMS", "role": "button", "resourceId": "com.google.android.apps.messaging:id/send_message_button_icon", "clickable": true, "actions": ["click"] }
+    ],
+    "pageTextSchema": "cyclone-page-text-v1",
+    "pageSummarySchema": "cyclone-page-summary-v1"
+  }
+}

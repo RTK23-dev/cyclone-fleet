@@ -1,0 +1,6 @@
+- tab "Clock" [ref=e1]
+- tab "Timer" [ref=e2]
+- tab "Stopwatch" [ref=e3]
+- tab "Alarm" [ref=e4]
+- tab "Bedtime" [ref=e5]
+- button "More options" [ref=e6]
