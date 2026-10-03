@@ -51,12 +51,25 @@ CREATE TABLE IF NOT EXISTS fleet_task (
 
 
 def _row_to_dict(row: sqlite3.Row) -> dict[str, Any]:
+    try:
+        notes = json.loads(row["notes_json"])
+    except (TypeError, ValueError):
+        notes = []
+    try:
+        assignments = json.loads(row["rows_json"])
+    except (TypeError, ValueError):
+        assignments = []
+    if not isinstance(notes, list):
+        notes = []
+    if not isinstance(assignments, list):
+        assignments = []
     return {
-        "missionId":   row["mission_id"],
-        "command":     row["command"],
-        "createdAt":   row["created_at"],
-        "notes":       json.loads(row["notes_json"]),
-        "assignments": json.loads(row["rows_json"]),
+        "missionId": row["mission_id"],
+        "command": row["command"],
+        "createdAt": row["created_at"],
+        "notes": notes,
+        "assignments": assignments,
+        "poisoned": not isinstance(row["rows_json"], str) or row["rows_json"][:1] not in "[{",
     }
 
 
@@ -98,10 +111,24 @@ class FleetStore:
         self._clock = clock or (lambda: int(time.time() * 1000))
         self._lock = threading.RLock()
         db_path.parent.mkdir(parents=True, exist_ok=True)
+        self.open_error = ""
         self._db = sqlite3.connect(str(db_path), check_same_thread=False)
         self._db.row_factory = sqlite3.Row
-        self._db.executescript(_DDL)
-        self._db.commit()
+        try:
+            self._db.executescript(_DDL)
+            self._db.commit()
+        except sqlite3.DatabaseError as exc:
+            self._db.close()
+            broken = db_path.with_suffix(".broken")
+            try:
+                db_path.replace(broken)
+            except OSError:
+                pass
+            self.open_error = str(exc)
+            self._db = sqlite3.connect(str(db_path), check_same_thread=False)
+            self._db.row_factory = sqlite3.Row
+            self._db.executescript(_DDL)
+            self._db.commit()
         if legacy_json is not None:
             self._migrate(legacy_json)
 

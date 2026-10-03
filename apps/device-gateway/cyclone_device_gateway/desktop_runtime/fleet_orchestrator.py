@@ -291,6 +291,7 @@ class FleetOrchestrator:
                 self._forget_trimmed()
             self._emit(FleetEventType.MISSION_CREATED, missionId=mission_id, status="queued")
         except Exception:
+            log.exception("fleet.dispatch_failed mission=%s", mission_id)
             if not committed:
                 self._store.delete(mission_id)
                 with self._lock:

@@ -30,6 +30,16 @@ test fails when the fix is undone. Not run here: real FastAPI, pytest-only files
 
 Stop fleet missions already cancels only open fleet tasks. A command of 30 or 100 phones is refused by the 16-phone cap before any task is created. That refusal was run. It is not a latency number.
 
-## Could not check
+## Step 2 on alpha.102
+
+| # | Severity | Bug | Fix | Verified |
+|---|---|---|---|---|
+| 16 | High | A mission row with bad JSON raised and broke the list. | `page()` treats bad notes or assignments as empty. | `test_a_poisoned_row_does_not_break_the_list` passed. |
+| 17 | High | A corrupt `fleet.db` stopped the gateway from opening the store. | The file is renamed `.broken` and a new store is opened. `open_error` says why. | `test_a_corrupt_database_is_quarantined` passed. |
+| 18 | Low | A dispatch failure was re-raised with no log line. | `log.exception` includes the mission id and no goal. | Log call is on the existing re-raise path. |
+
+Caps stay 16 per command and 32 phones, from `FLEET_MAX_PER_COMMAND` and `FLEET_MAX_PHONES`. They were not raised. 30 and 100 phones were not measured on devices. Dispatch still creates tasks inside the request. The orchestrator was not split. `kill -9` of a running gateway was not run. Glass fleet view has no `innerHTML`.
+
+Gateway and CI suites exited 0 before this pass. The new tests exited 0.
 
 No phone, no emulator, no Glass browser, no `npm test` on this pass. Owner Moment, locked, offline, restart, and broadcast stay UNVERIFIED. Dispatch latency at 30 and 100 phones was not measured because the cap refuses them.
