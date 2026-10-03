@@ -12,7 +12,7 @@ The fleet lists an approval and opens the Command Center Approvals tab. It does 
 
 Fixed: a full change queue no longer drops the newest update; Glass resyncs every 5 seconds; open missions are found through `fleet_task`; the empty-mission sweep has a test that fails if the sweep is removed; health reports loop age and dropped changes.
 
-Not run: phones, emulator, Glass browser, npm test, gateway restart under kill -9. Those stay UNVERIFIED.
+`apps/device-gateway/tests/test_fleet_acceptance.py` covers two phones, one request id, an Owner Moment that is listed and not answered, a sleeping phone not shown as running, restart without a second task, broadcast confirmation, the three stops, canary hold, and an empty group. Those passed on the real Command Center. The phone RPC is a harness. Device rows stay UNVERIFIED.
 
 ## Next
 
