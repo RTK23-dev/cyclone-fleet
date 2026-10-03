@@ -19,10 +19,17 @@ test fails when the fix is undone. Not run here: real FastAPI, pytest-only files
 | 10 | Medium (UX) | Preflight warnings (battery, permission, busy phone) were computed, forced a confirm, and were then dropped by Glass. | Glass parses and shows them in the confirm card. |
 | 11 | Process | The previous commit deleted the fleet parser/orchestrator/scenes/nickname tests, the fleet CI guard and Glass fleet tests, leaving one 47-line file. | Restored and adapted (see `tests/`), guard tightened to match calls/POST routes rather than the word "approvals". |
 
-## Still open (not fixed here)
-- `_open_mission_ids()` still walks all missions (now at most once a minute); index it (open task id -> mission) instead.
-- `stop_fleet_missions` tries to cancel every task id of every stored mission; intersect with open tasks first.
-- `dispatch` still creates every task inside the HTTP request; measure at 30/100 phones, then move to a background worker if slow.
-- `/v1/fleet/health` lacks loop liveness and last-tick age.
-- The placeholder-in-memory + startup-sweep fixes are two independent defences; only the sweep has its own test.
-- Everything above is sandbox-verified. Phone acceptance is still UNVERIFIED.
+## Severe pass on alpha.102
+
+| # | Severity | Bug | Fix | Verified |
+|---|---|---|---|---|
+| 12 | High | A full change queue dropped the newest task update and left Glass wrong until the socket died. | The queue drops the oldest and keeps the newest. Glass resyncs every 5 seconds even while the socket is up. Health reports `changesDropped`. | `test_full_change_queue_keeps_the_newest` passed. |
+| 13 | Medium | Open-mission protection walked every stored mission. | Open task ids are looked up in `fleet_task`, 500 at a time. Held-back canary rows are still protected. | Code path used by trim. No phone. |
+| 14 | Medium | The ghost sweep had no test of its own. | `test_empty_mission_is_swept_on_start`. Undoing `delete_empty()` makes that test fail. | Failed when the sweep was removed, passed when restored. |
+| 15 | Low | Health did not say how long since the Command Center ticked. | The loop records `_last_tick_ms`. Health returns `lastTickAgeMs` and `loopAlive`. | Field is present. Loop age was not measured on a running gateway. |
+
+Stop fleet missions already cancels only open fleet tasks. A command of 30 or 100 phones is refused by the 16-phone cap before any task is created. That refusal was run. It is not a latency number.
+
+## Could not check
+
+No phone, no emulator, no Glass browser, no `npm test` on this pass. Owner Moment, locked, offline, restart, and broadcast stay UNVERIFIED. Dispatch latency at 30 and 100 phones was not measured because the cap refuses them.

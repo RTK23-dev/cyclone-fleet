@@ -402,7 +402,7 @@ export function createFleetView(deps: FleetViewDeps): FleetView {
     renderStats();
     renderMissions();
     if (renaming === null) renderPhones(); // never redraw a name the owner is typing
-    if (!socketUp) cancel = later(() => void refresh(), FLEET_POLL_MS);
+    if (!destroyed) cancel = later(() => void refresh(), FLEET_POLL_MS);
   }
 
   function applyLive(event: { event?: string; missionId?: string; taskId?: string; deviceId?: string; status?: string }): void {

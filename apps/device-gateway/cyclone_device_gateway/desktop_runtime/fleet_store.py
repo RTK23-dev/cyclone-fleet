@@ -238,6 +238,19 @@ class FleetStore:
             self._delete_ids(doomed)
         return len(doomed)
 
+    def missions_for_tasks(self, task_ids: list[str]) -> list[str]:
+        found: list[str] = []
+        with self._lock:
+            for i in range(0, len(task_ids), 500):
+                chunk = task_ids[i:i + 500]
+                if not chunk:
+                    continue
+                marks = ",".join("?" for _ in chunk)
+                found += [r[0] for r in self._db.execute(
+                    f"SELECT DISTINCT mission_id FROM fleet_task WHERE task_id IN ({marks})", chunk,
+                )]
+        return found
+
     def delete_empty(self) -> int:
         """Remove missions with no assignments. A real mission always has one; an empty one is a ghost left by a crash."""
         with self._lock:

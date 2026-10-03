@@ -147,6 +147,7 @@ class FleetOrchestrator:
         cap = self._store.control("spendCap")
         self._spend_cap = float(cap) if cap else None
         self._changes: queue.Queue = queue.Queue(maxsize=256)
+        self._changes_dropped = 0
         self._change_stop = threading.Event()
         self._change_thread = threading.Thread(target=self._change_loop, name="fleet-changes", daemon=True)
         self._change_thread.start()
@@ -692,10 +693,18 @@ class FleetOrchestrator:
             "store": "fleet.db",
             "loopAlive": bool(thread and thread.is_alive()),
             "ticks": int(getattr(self._cc, "_ticks", 0) or 0),
+            "lastTickAgeMs": self._last_tick_age(),
             "changeQueue": self._changes.qsize(),
+            "changesDropped": self._changes_dropped,
             "approvalsWaiting": self.approvals()["count"],
             "answersApprovals": False,
         }
+
+    def _last_tick_age(self) -> int | None:
+        last = getattr(self._cc, "_last_tick_ms", None)
+        if not isinstance(last, int) or last <= 0:
+            return None
+        return max(0, self._clock() - last)
 
     def export_mission(self, mission_id: str) -> dict[str, Any]:
         mission = self.mission(mission_id)
@@ -735,10 +744,19 @@ class FleetOrchestrator:
 
     def enqueue_task_change(self, change: dict[str, Any]) -> None:
         """The Command Center calls this. Handling happens on the fleet thread, not inside the Command Center lock."""
+        item = dict(change)
         try:
-            self._changes.put_nowait(dict(change))
+            self._changes.put_nowait(item)
         except queue.Full:
-            log.info("fleet.change_dropped")
+            try:
+                self._changes.get_nowait()
+            except queue.Empty:
+                pass
+            self._changes_dropped += 1
+            try:
+                self._changes.put_nowait(item)
+            except queue.Full:
+                self._changes_dropped += 1
 
     def _change_loop(self) -> None:
         while not self._change_stop.is_set():
@@ -1046,29 +1064,17 @@ class FleetOrchestrator:
     def _open_mission_ids(self) -> set[str]:
         """Missions the Command Center still has open. trim() must not delete these."""
         try:
-            open_tasks = {t["id"] for t in self._cc.list_tasks(status="open", limit=1000)}
+            open_tasks = [t["id"] for t in self._cc.list_tasks(status="open", limit=5000)]
         except Exception:  # noqa: BLE001 - if we cannot tell, protect everything we can see
-            open_tasks = set()
-            protect_unknown = True
-        else:
-            protect_unknown = False
-        protect: set[str] = set()
+            return {item["missionId"] for item in self._store.page(5000)[0]}
+        protect = set(self._store.missions_for_tasks(open_tasks))
         cursor: str | None = None
         while True:
             items, cursor = self._store.page(200, cursor=cursor)
             for mission in items:
                 rows = mission.get("assignments") or []
-                if mission.get("pending"):
+                if any(not row.get("taskId") and not row.get("error") for row in rows):
                     protect.add(mission["missionId"])
-                    continue
-                for row in rows:
-                    task_id = row.get("taskId")
-                    if task_id and (protect_unknown or task_id in open_tasks):
-                        protect.add(mission["missionId"])
-                        break
-                    if not task_id and not row.get("error"):       # held back by a canary: still to be started
-                        protect.add(mission["missionId"])
-                        break
             if not cursor:
                 break
         return protect

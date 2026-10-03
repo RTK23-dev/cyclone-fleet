@@ -197,6 +197,7 @@ class CommandCenter:
         self._wake = threading.Event()
         self._tick_done = threading.Condition()
         self._ticks = 0
+        self._last_tick_ms = 0
 
     def set_task_listener(self, listener) -> None:
         self._task_listener = listener
@@ -242,6 +243,7 @@ class CommandCenter:
                 self.tick()
             except Exception:  # noqa: BLE001 - the loop must survive one bad tick; the next one retries
                 pass
+            self._last_tick_ms = self._clock()
             with self._tick_done:
                 self._ticks += 1
                 self._tick_done.notify_all()

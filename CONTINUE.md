@@ -1,19 +1,19 @@
 # CONTINUE.md — hand-off
 
-Read this, then `AGENTS.md`, then `docs/FLEET.md`. Do not claim a device check passed unless it ran on a phone.
+Read this, then `AGENTS.md`, then `docs/FLEET.md` and `docs/FLEET_REVIEW.md`.
 
 ## Baseline
 
-Cyclone 5.0.0-alpha.102.dev1 with the fleet layer. Repo: `RTK23-dev/cyclone-fleet`, branch `main` only.
+Cyclone 5.0.0-alpha.102.dev1 with the fleet layer. Repo: `RTK23-dev/cyclone-fleet`, branch `main`.
 
-Alpha.102 numbers stay. The fleet sits above the Command Center. Routes stay `/v1/fleet`. The tab label is Multi-phone. The fleet does not answer an approval.
+The fleet lists an approval and opens the Command Center Approvals tab. It does not answer. That is intentional.
 
-## Integrated
+## Last severe pass
 
-SQLite missions, async dispatch, live events, queued phones, health report, preflight, pause, do-not-target, spend cap, retry, canary rollout, queued-behind, and owner approval display. Review fixes for rollout rows, empty missions, task binding, and CSV export are included.
+Fixed: a full change queue no longer drops the newest update; Glass resyncs every 5 seconds; open missions are found through `fleet_task`; the empty-mission sweep has a test that fails if the sweep is removed; health reports loop age and dropped changes.
 
-## Checks on this tree
+Not run: phones, emulator, Glass browser, npm test, gateway restart under kill -9. Those stay UNVERIFIED.
 
-- `python -m pytest apps/device-gateway/tests` exited 0. No failed tests.
-- `python -m pytest scripts/ci/tests` exited 0.
-- Phone acceptance stays UNVERIFIED. Do not bump `release/version.toml`.
+## Next
+
+Run `docs/FLEET_ACCEPTANCE.md` on two phones. Do not bump `release/version.toml`.
